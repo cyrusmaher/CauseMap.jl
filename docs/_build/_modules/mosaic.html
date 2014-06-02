@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mosaic &mdash; CauseMap 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-2.3.2/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-2.3.2/css/bootstrap-responsive.min.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-2.3.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="CauseMap 1.0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+        <a class="brand" href="../index.html">CauseMap</a>
+        <span class="navbar-text pull-left"><b>1.0</b></span>
+
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="divider-vertical"></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a href="../index.html"
+     class="dropdown-toggle"
+     data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+    ></ul>
+</li>
+              <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"></ul>
+</li>
+            
+            
+              
+            
+            
+              <li></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-search pull-right" action="../search.html" method="get">
+  <input type="text" name="q" class="search-query" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container">
+  
+  <h1>Source code for mosaic</h1><div class="highlight"><pre>
+<span class="c"># The MIT License (MIT)</span>
+<span class="c">#</span>
+<span class="c"># Copyright (c) 2013 M. Cyrus Maher</span>
+<span class="c">#</span>
+<span class="c"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c"># in the Software without restriction, including without limitation the rights</span>
+<span class="c"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c"># furnished to do so, subject to the following conditions:</span>
+<span class="c">#</span>
+<span class="c"># all copies or substantial portions of the Software.</span>
+<span class="c">#</span>
+<span class="c"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c"># THE SOFTWARE.</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">commands</span> <span class="kn">import</span> <span class="n">getoutput</span><span class="p">,</span> <span class="n">getstatusoutput</span>
+<span class="kn">from</span> <span class="nn">Bio</span> <span class="kn">import</span> <span class="n">AlignIO</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+
+<div class="viewcode-block" id="pairwisealign"><a class="viewcode-back" href="../Module.html#mosaic.pairwisealign">[docs]</a><span class="k">def</span> <span class="nf">pairwisealign</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Globally align two sequences.</span>
+
+<span class="sd">    :param seq1: Sequence 1</span>
+<span class="sd">    :type seq1: str</span>
+<span class="sd">    :param seq2: Sequence 2</span>
+<span class="sd">    :type seq2: str</span>
+
+<span class="sd">    :parm AA: True if protein sequences, false otherwise.</span>
+<span class="sd">    :param gapopen: The cost for opening a gap.</span>
+<span class="sd">    :param gapextend: The cost for extending a gap.</span>
+
+<span class="sd">    :returns: Sequence 1 aligned, sequence 2 aligned</span>
+<span class="sd">    :rtype: tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;AA&#39;</span><span class="p">]:</span>
+        <span class="n">flag1</span> <span class="o">=</span> <span class="s">&#39;-sprotein1&#39;</span>
+        <span class="n">flag2</span> <span class="o">=</span> <span class="s">&#39;-sprotein2&#39;</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="s">&#39;EBLOSUM62&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flag1</span> <span class="o">=</span> <span class="s">&#39;-snucleotide1&#39;</span>
+        <span class="n">flag2</span> <span class="o">=</span> <span class="s">&#39;-snucleotide2&#39;</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="s">&#39;EDNAFULL&#39;</span>
+
+    <span class="n">outfile</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span>
+
+    <span class="n">callstr</span> <span class="o">=</span> <span class="s">&#39;stretcher -outfile=</span><span class="si">%s</span><span class="s"> -asequence=asis:</span><span class="si">%s</span><span class="s"> </span><span class="se">\</span>
+<span class="s">        -bsequence=asis:</span><span class="si">%s</span><span class="s"> -gapopen=</span><span class="si">%s</span><span class="s"> -gapextend=</span><span class="si">%s</span><span class="s"> -aformat fasta </span><span class="se">\</span>
+<span class="s">        -datafile </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">seq1</span><span class="p">,</span>
+                               <span class="n">seq2</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;gapopen&#39;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;gapextend&#39;</span><span class="p">],</span>
+                               <span class="n">matrix</span><span class="p">,</span> <span class="n">flag1</span><span class="p">,</span> <span class="n">flag2</span><span class="p">)</span>
+
+    <span class="n">status</span><span class="p">,</span> <span class="n">output</span> <span class="o">=</span> <span class="n">getstatusoutput</span><span class="p">(</span><span class="n">callstr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">AlignIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s">&#39;fasta&#39;</span><span class="p">)</span>
+        <span class="n">alignmentobj</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+        <span class="n">outfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">getoutput</span><span class="p">(</span><span class="s">&#39;rm </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">outfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">output</span>
+        <span class="k">print</span> <span class="s">&quot;There was an error in pairwisealign.</span><span class="se">\</span>
+<span class="s">                Is stretcher installed? See above output and check out&quot;</span><span class="p">,</span> \
+            <span class="n">outfile</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">print</span> <span class="n">callstr</span>
+        <span class="n">outfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="ne">SystemError</span>
+
+    <span class="k">return</span> <span class="n">alignmentobj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">alignmentobj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">_data</span>
+
+</div>
+<div class="viewcode-block" id="MultiMSA"><a class="viewcode-back" href="../Module.html#mosaic.MultiMSA">[docs]</a><span class="k">class</span> <span class="nc">MultiMSA</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data object for containing sets of multiple sequence alignments.</span>
+
+<span class="sd">    :param MSAlist1: A list of multiple sequence alignments</span>
+<span class="sd">        (class Bio.Align.MultipleSeqAlignment, read in with Bio.AlignIO.read)</span>
+<span class="sd">    :param MSAlist2: The corresponding AA or DNA alignments (optional) \n</span>
+<span class="sd">    :param MSAspec1: A list of lists specifying the order of species in each</span>
+<span class="sd">        MSAlist1 alignment(This or specfunc1 must be set)</span>
+<span class="sd">    :param MSAspec2: Same as above for MSAlist2.</span>
+<span class="sd">        If neither MSAspec2 or specfunc2</span>
+<span class="sd">        are set, species order is assumed to be the same as MSAlist1</span>
+<span class="sd">    :param specfunc1: A parsing function that returns species names from</span>
+<span class="sd">        sequence labels (This or MSAspec1 must be set)</span>
+<span class="sd">    :param specfunc2: Same as above for MSAlist2.</span>
+<span class="sd">        If neither MSAspec2 or specfunc2 are set,</span>
+<span class="sd">        species order is assumed to be the same as MSAlist1</span>
+<span class="sd">    :param methodnames1: The names of the methods used corresponding</span>
+<span class="sd">        to alignments in MSAlist1 (optional)</span>
+<span class="sd">    :param methodnames2: The names of the methods used corresponding</span>
+<span class="sd">        to alignments in MSAlist2 (optional)</span>
+<span class="sd">    :param specorder: The desired order of species for downstream output.</span>
+
+<span class="sd">    :returns: A MultiMSA object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MSAlist1</span><span class="p">,</span> <span class="n">MSAlist2</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">MSAspec1</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">MSAspec2</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">specfunc1</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">specfunc2</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">methodnames1</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">methodnames2</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">specorder</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">MSAlist1</span><span class="p">,</span> <span class="s">&#39;MSAlist1 is empty!!&#39;</span>
+        <span class="k">assert</span> <span class="n">MSAspec1</span> <span class="ow">or</span> <span class="n">specfunc1</span><span class="p">,</span> \
+            <span class="s">&#39;Mosaic needs to know the order of species in MSA 1.&#39;</span> \
+            <span class="s">&#39;Please either supply a ordered list of species</span><span class="se">\</span>
+<span class="s">            or a function to obtain this information from record labels.&#39;</span>
+
+        <span class="k">if</span> <span class="n">MSAspec2</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">MSAspec2</span> <span class="ow">or</span> <span class="n">specfunc2</span> <span class="ow">or</span> <span class="n">specfunc1</span><span class="p">,</span> \
+                <span class="s">&#39;Mosaic needs to know the order of species in the MSA 2.&#39;</span> \
+                <span class="s">&#39;Please either supply a ordered list of species</span><span class="se">\</span>
+<span class="s">                or a function to obtain this information from record labels.&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist1</span> <span class="o">=</span> <span class="n">MSAlist1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2</span> <span class="o">=</span> <span class="n">MSAlist2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">catcount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaultnames</span> <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">methodnames1</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodnames1</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Met</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">xx</span>
+                             <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">MSAlist1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> \
+            <span class="k">if</span> <span class="n">methodnames1</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">methodnames1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodnames2</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Met</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">xx</span>
+                             <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">MSAlist2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> \
+            <span class="k">if</span> <span class="p">((</span><span class="n">methodnames2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="p">(</span><span class="n">MSAlist2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">))</span> \
+            <span class="k">else</span> <span class="n">methodnames2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nummethods</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specorder</span> <span class="o">=</span> <span class="n">specorder</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodnames2</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodnames2</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">),</span> \
+                <span class="s">&#39;Alignment sets must include the same set of methods.&#39;</span>
+
+        <span class="k">if</span> <span class="n">MSAspec1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist1_specs</span> <span class="o">=</span> <span class="n">MSAspec1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist1_specs</span> <span class="o">=</span> <span class="p">[[</span><span class="n">specfunc1</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">MSA</span><span class="p">]</span>
+                                   <span class="k">for</span> <span class="n">MSA</span> <span class="ow">in</span> <span class="n">MSAlist1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">MSAlist2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">MSAspec2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2_specs</span> <span class="o">=</span> <span class="n">MSAspec2</span>
+            <span class="k">elif</span> <span class="n">specfunc2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2_specs</span> <span class="o">=</span> <span class="p">[[</span><span class="n">specfunc2</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                                        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">MSA</span><span class="p">]</span> <span class="k">for</span> <span class="n">MSA</span> <span class="ow">in</span> <span class="n">MSAlist2</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">specfunc1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2_specs</span> <span class="o">=</span> <span class="p">[[</span><span class="n">specfunc1</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                                        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">MSA</span><span class="p">]</span> <span class="k">for</span> <span class="n">MSA</span> <span class="ow">in</span> <span class="n">MSAlist2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storeMSAdicts</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_storeMSAdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">methodnames</span><span class="p">,</span> <span class="n">MSAlist_specs</span><span class="p">,</span> <span class="n">MSAlist</span><span class="p">):</span>
+        <span class="n">metdict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">metcount</span><span class="p">,</span> <span class="n">met</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">methodnames</span><span class="p">):</span>
+            <span class="n">specs</span> <span class="o">=</span> <span class="n">MSAlist_specs</span><span class="p">[</span><span class="n">metcount</span><span class="p">]</span>
+            <span class="n">MSA</span> <span class="o">=</span> <span class="n">MSAlist</span><span class="p">[</span><span class="n">metcount</span><span class="p">]</span>
+            <span class="n">metdict</span><span class="p">[</span><span class="n">met</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">speccount</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">specs</span><span class="p">):</span>
+                <span class="n">metdict</span><span class="p">[</span><span class="n">met</span><span class="p">][</span><span class="n">spec</span><span class="p">]</span> <span class="o">=</span> <span class="n">MSA</span><span class="o">.</span><span class="n">_records</span><span class="p">[</span><span class="n">speccount</span><span class="p">]</span>
+                <span class="n">metdict</span><span class="p">[</span><span class="n">met</span><span class="p">][</span><span class="n">spec</span><span class="p">]</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">spec</span>
+        <span class="k">return</span> <span class="n">metdict</span>
+
+    <span class="k">def</span> <span class="nf">storeMSAdicts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MSAdict1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storeMSAdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">,</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist1_specs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MSAdict2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storeMSAdict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodnames2</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2_specs</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MSAdict2</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_strn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thedict</span><span class="p">,</span> <span class="n">startstr</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">thedict</span><span class="p">:</span>
+            <span class="n">specs</span> <span class="o">=</span> <span class="n">thedict</span><span class="p">[</span><span class="n">xx</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="n">startstr</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\t</span><span class="s">For </span><span class="si">%s</span><span class="s">, alignments of length </span><span class="si">%s</span><span class="s"> returned for </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span>\
+                        <span class="o">%</span> <span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">thedict</span><span class="p">[</span><span class="n">xx</span><span class="p">][</span><span class="n">specs</span><span class="p">[</span><span class="mi">0</span><span class="p">]]),</span> <span class="n">specs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">startstr</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">str1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MSAdict1</span><span class="p">,</span> <span class="n">startstr</span><span class="o">=</span><span class="s">&#39;Set 1:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">MSAdict1</span>\
+            <span class="k">else</span> <span class="s">&#39;ERROR! No alignments included for set 1.&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2</span><span class="p">:</span>
+            <span class="n">str2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MSAdict2</span><span class="p">,</span> <span class="n">startstr</span><span class="o">=</span><span class="s">&#39;Set 2:</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> \
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">MSAdict2</span> \
+                <span class="k">else</span> <span class="s">&#39;No alignments included for set 2.&#39;</span>
+
+            <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">str1</span><span class="p">,</span> <span class="n">str2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str1</span>
+
+    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">xx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">,</span> \
+                <span class="s">&#39;ERROR: Catenated multiMSAs&#39;</span> \
+                <span class="s">&#39;should not have overlapping method names!&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">MSAdict1</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storeMSAdict</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">,</span>
+                                                <span class="n">other</span><span class="o">.</span><span class="n">MSAlist1_specs</span><span class="p">,</span>
+                                                <span class="n">other</span><span class="o">.</span><span class="n">MSAlist1</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodnames1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodnames1</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">methodnames1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist1_specs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist1_specs</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">MSAlist1_specs</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">MSAlist2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MSAdict2</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storeMSAdict</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">methodnames2</span><span class="p">,</span>
+                                                    <span class="n">other</span><span class="o">.</span><span class="n">MSAlist2_specs</span><span class="p">,</span>
+                                                    <span class="n">other</span><span class="o">.</span><span class="n">MSAlist2</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">methodnames2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodnames2</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">methodnames2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2_specs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2_specs</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">MSAlist2_specs</span>
+
+        <span class="k">elif</span> <span class="n">other</span><span class="o">.</span><span class="n">MSAlist2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MSAdict2</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">MSAdict2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">methodnames2</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">methodnames2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MSAlist2_specs</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">MSAlist2_specs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nummethods</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+</div>
+<div class="viewcode-block" id="Mosaic"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic">[docs]</a><span class="k">class</span> <span class="nc">Mosaic</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Allows for integration of sets of multiple sequence alignments</span>
+
+
+<span class="sd">    :param multiMSA: a MultiMSA object</span>
+<span class="sd">    :param ref: The species to use as the reference</span>
+<span class="sd">        to anchor the sequence cluster.</span>
+<span class="sd">    :param useonlyspec: If specified, use only the supplied subset of species.</span>
+<span class="sd">    :param speccutoffs: Pass a dictionary of cutoffs. Corresponds to</span>
+<span class="sd">                species-specific cutoffs.</span>
+<span class="sd">    :param edgefunc: The function to calculate similarities between species.</span>
+<span class="sd">            Can be &#39;perID&#39;, &#39;bitscore&#39;, or a</span>
+<span class="sd">            user-specified function of the form: func(seq1, seq2, \*\*kwargs)</span>
+<span class="sd">    :param optrule (&#39;pairwise&#39;): The rule for optimization. Can be &#39;pairwise&#39;,</span>
+<span class="sd">            &#39;toref&#39;, or a user-specified function of the form:</span>
+<span class="sd">            ``func(edgeweightmatrix, \*\*kwargs)``</span>
+<span class="sd">    :param ignoregaps: Ignore gaps in alignment scoring?</span>
+<span class="sd">    :param AA: True if the primary MSA set is amino acid. False otherwise.</span>
+
+<span class="sd">    :param customoptfunc: Custom optimization function</span>
+<span class="sd">    :param scoremat: Custom scoring matrix for &#39;bitscore&#39;</span>
+<span class="sd">    :param stretcher_gapopen:</span>
+<span class="sd">        Gap opening penalty for global pairwise sequence alignment.</span>
+<span class="sd">    :param stretcher_gapextend:</span>
+<span class="sd">        Gap extension penalty for global pairwise sequence alignment.</span>
+
+<span class="sd">    :returns: Mosaic object</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiMSA</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">useonlyspec</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">speccutoffs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">edgefunc</span><span class="o">=</span><span class="s">&#39;perID&#39;</span><span class="p">,</span> <span class="n">optrule</span><span class="o">=</span><span class="s">&#39;pairwise&#39;</span><span class="p">,</span> <span class="n">ignoregaps</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">customoptfunc</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">AA</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">scoremat</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">stretcher_gapopen</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">stretcher_gapextend</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">similaritythresh</span><span class="o">=-</span><span class="mf">1e6</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span> <span class="o">=</span> <span class="n">multiMSA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speccutoffs</span> <span class="o">=</span> <span class="n">speccutoffs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span> <span class="o">=</span> <span class="n">similaritythresh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">AA</span> <span class="o">=</span> <span class="n">AA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optrule</span> <span class="o">=</span> <span class="n">optrule</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignoregaps</span> <span class="o">=</span> <span class="n">ignoregaps</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getallspecs</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">useonlyspec</span><span class="p">:</span>
+            <span class="c">## All species that were present and requested.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">useonlyspec</span><span class="p">)</span>
+
+        <span class="c">## Make sure reference species comes first in order.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">,)</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methods</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">methodnames1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nummethods</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">nummethods</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">customoptfunc</span> <span class="o">=</span> <span class="n">customoptfunc</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stretcher_gapopen</span> <span class="o">=</span> <span class="n">stretcher_gapopen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stretcher_gapextend</span> <span class="o">=</span> <span class="n">stretcher_gapextend</span>
+
+        <span class="k">if</span> <span class="n">edgefunc</span> <span class="o">==</span> <span class="s">&#39;perID&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">edgefunc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getperID</span>
+        <span class="k">elif</span> <span class="n">edgefunc</span> <span class="o">==</span> <span class="s">&#39;bitscore&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">edgefunc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getbitscore</span>
+            <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+            <span class="k">if</span> <span class="n">scoremat</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scoremat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">scoremat</span><span class="p">,</span>
+                                            <span class="n">header</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                                            <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;\s+&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">AA</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scoremat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span>
+                                 <span class="s">&#39;BLOSUM62.txt&#39;</span><span class="p">),</span>
+                    <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;\s+&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scoremat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span>
+                    <span class="s">&#39;EDNAFULL.txt&#39;</span><span class="p">),</span>
+                                            <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;\s+&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">edgefunc</span><span class="p">,</span> <span class="s">&#39;__call__&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">edgefunc</span> <span class="o">=</span> <span class="n">edgefunc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s">&#39;Unrecognized value for edge function. &#39;</span>
+                                 <span class="s">&#39;You supplied </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">edgefunc</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> \
+            <span class="s">&quot;A reference species is required in order to anchor the cluster.&quot;</span>
+
+        <span class="k">if</span> <span class="n">ignoregaps</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">ref</span><span class="p">,</span> <span class="s">&#39;A reference must be defined in order to ignore gaps</span><span class="se">\</span>
+<span class="s">                        (multiple edges between nodes are not implemented).&#39;</span>
+
+        <span class="k">assert</span> <span class="n">optrule</span> <span class="o">==</span> <span class="s">&#39;pairwise&#39;</span> <span class="ow">or</span> <span class="n">optrule</span> <span class="o">==</span> <span class="s">&#39;toref&#39;</span><span class="p">,</span> \
+            <span class="s">&#39;ERROR: unrecognized optimization rule.</span><span class="se">\</span>
+<span class="s">             Supported rules are &quot;toref&quot; and &quot;pairwise&quot;&#39;</span>
+        <span class="k">if</span> <span class="n">useonlyspec</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">useonlyspec</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s">&#39;useonlyspec should be an iterable</span><span class="se">\</span>
+<span class="s">                 containing the desired species&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_edgeweights</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimize_cluster</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Mosaic.getbitscore"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.getbitscore">[docs]</a>    <span class="k">def</span> <span class="nf">getbitscore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate a bitscore between two (unaligned) sequences.</span>
+
+<span class="sd">        :param seq1: Sequence 1</span>
+<span class="sd">        :param seq2: Sequence 2</span>
+
+<span class="sd">        :var self.AA: True if sequence alphabet is amino acids,</span>
+<span class="sd">            false otherwise.</span>
+<span class="sd">        :var self.stretcher_gapopen: The penalty for opening</span>
+<span class="sd">            a gap in the alignment.</span>
+<span class="sd">        :var self.stretcher_gapextend: The penalty for extending</span>
+<span class="sd">            a gap in the alignment.</span>
+<span class="sd">        :var self.scoremat: The score matrix to use for</span>
+<span class="sd">            the scoring of the alignment.</span>
+
+<span class="sd">        :return: A bit score for the aligned sequences.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            `pandas &lt;http://pandas.pydata.org/&gt;`_</span>
+<span class="sd">            is required to manage scoring matrices.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seq1_aligned</span><span class="p">,</span> <span class="n">seq2_aligned</span> <span class="o">=</span> <span class="n">pairwisealign</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">,</span>
+                                           <span class="n">AA</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">AA</span><span class="p">,</span>
+                                           <span class="n">gapopen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stretcher_gapopen</span><span class="p">,</span>
+                                           <span class="n">gapextend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stretcher_gapextend</span><span class="p">)</span>
+
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">seq1_aligned</span><span class="p">,</span> <span class="n">seq2_aligned</span><span class="p">):</span>
+            <span class="n">xx</span> <span class="o">=</span> <span class="s">&#39;*&#39;</span> <span class="k">if</span> <span class="n">xx</span> <span class="o">==</span> <span class="s">&#39;-&#39;</span> <span class="k">else</span> <span class="n">xx</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="s">&#39;*&#39;</span> <span class="k">if</span> <span class="n">yy</span> <span class="o">==</span> <span class="s">&#39;-&#39;</span> <span class="k">else</span> <span class="n">yy</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoremat</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">]</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">score</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq1_aligned</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Mosaic.getperID"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.getperID">[docs]</a>    <span class="k">def</span> <span class="nf">getperID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate percent identity between two (unaligned) sequences.</span>
+
+<span class="sd">        :param seq1: Sequence 1</span>
+<span class="sd">        :param seq2: Sequence 2</span>
+
+<span class="sd">        :var self.AA: True if sequence alphabet is amino acids,</span>
+<span class="sd">            false otherwise.</span>
+<span class="sd">        :var self.ignoregaps: True if gaps in the first (reference)</span>
+<span class="sd">            sequence are to be ignored.</span>
+
+<span class="sd">        :return: A percent identity for the aligned sequences.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">seq1_aligned</span><span class="p">,</span> <span class="n">seq2_aligned</span> <span class="o">=</span> <span class="n">pairwisealign</span><span class="p">(</span><span class="n">seq1</span><span class="p">,</span> <span class="n">seq2</span><span class="p">,</span>
+                                            <span class="n">AA</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">AA</span><span class="p">,</span>
+                                            <span class="n">gapopen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stretcher_gapopen</span><span class="p">,</span>
+                                            <span class="n">gapextend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stretcher_gapextend</span><span class="p">)</span>
+
+        <span class="n">seq1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ss</span> <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="n">seq1_aligned</span><span class="p">])</span>
+        <span class="n">seq2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ss</span> <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="n">seq2_aligned</span><span class="p">])</span>
+
+        <span class="c">## You only want to count valid matches</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">AA</span><span class="p">:</span>
+            <span class="n">seq1_notmissing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">((</span><span class="n">seq1</span> <span class="o">!=</span> <span class="s">&#39;U&#39;</span><span class="p">),</span> <span class="p">(</span><span class="n">seq1</span> <span class="o">!=</span> <span class="s">&#39;X&#39;</span><span class="p">))</span>
+            <span class="n">seq2_notmissing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">((</span><span class="n">seq2</span> <span class="o">!=</span> <span class="s">&#39;U&#39;</span><span class="p">),</span> <span class="p">(</span><span class="n">seq2</span> <span class="o">!=</span> <span class="s">&#39;X&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignoregaps</span><span class="p">:</span>
+                <span class="n">seq1_notmissing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">((</span><span class="n">seq1</span> <span class="o">!=</span> <span class="s">&#39;-&#39;</span><span class="p">),</span>
+                                                 <span class="n">seq1_notmissing</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">seq1_notmissing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">((</span><span class="n">seq1</span> <span class="o">!=</span> <span class="s">&#39;?&#39;</span><span class="p">),</span> <span class="p">(</span><span class="n">seq1</span> <span class="o">!=</span> <span class="s">&#39;N&#39;</span><span class="p">))</span>
+            <span class="n">seq2_notmissing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">((</span><span class="n">seq2</span> <span class="o">!=</span> <span class="s">&#39;?&#39;</span><span class="p">),</span> <span class="p">(</span><span class="n">seq2</span> <span class="o">!=</span> <span class="s">&#39;N&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignoregaps</span><span class="p">:</span>
+                <span class="n">seq1_notmissing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">((</span><span class="n">seq1</span> <span class="o">!=</span> <span class="s">&#39;-&#39;</span><span class="p">),</span>
+                                                 <span class="n">seq1_notmissing</span><span class="p">)</span>
+
+        <span class="n">pairmatches</span> <span class="o">=</span> <span class="p">(</span><span class="n">seq1</span> <span class="o">==</span> <span class="n">seq2</span><span class="p">)</span>
+
+        <span class="c">## Get the percent of bases present in human</span>
+        <span class="c">## that match in comparison species.</span>
+        <span class="n">qualitymatches</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">pairmatches</span><span class="p">,</span> <span class="n">seq1_notmissing</span><span class="p">)</span>
+        <span class="n">qualitycomparisons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">seq1_notmissing</span><span class="p">,</span> <span class="n">seq2_notmissing</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">qualitymatches</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">qualitycomparisons</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+</div>
+    <span class="k">def</span> <span class="nf">getallspecs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">allspecs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">mm</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">MSAlist1_specs</span><span class="p">:</span>
+            <span class="n">allspecs</span> <span class="o">=</span> <span class="n">allspecs</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">allspecs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">indextomet_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xx</span><span class="p">):</span>
+        <span class="n">met</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">[</span><span class="n">xx</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nummethods</span><span class="p">]</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">[</span><span class="n">xx</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">nummethods</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">met</span><span class="p">,</span> <span class="n">spec</span>
+
+    <span class="k">def</span> <span class="nf">toindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnum</span><span class="p">,</span> <span class="n">snum</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">snum</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nummethods</span> <span class="o">+</span> <span class="n">mnum</span>
+
+    <span class="k">def</span> <span class="nf">index_fromnames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="n">mnum</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="p">)</span> <span class="o">==</span> <span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">snum</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">)</span> <span class="o">==</span> <span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">toindex</span><span class="p">(</span><span class="n">mnum</span><span class="p">,</span> <span class="n">snum</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">indices_fromnames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="n">mnum</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="p">)</span> <span class="o">==</span> <span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">snum</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">)</span> <span class="o">==</span> <span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">mnum</span><span class="p">,</span> <span class="n">snum</span>
+
+<div class="viewcode-block" id="Mosaic.calc_sim_mat_pairwise"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.calc_sim_mat_pairwise">[docs]</a>    <span class="k">def</span> <span class="nf">calc_sim_mat_pairwise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal function: For pairwise optimization,</span>
+<span class="sd">            calculate the similarity matrix that</span>
+<span class="sd">            will define the cluster of sequences.</span>
+
+<span class="sd">        :param self.multiMSA.MSAdict1: A dictionary of</span>
+<span class="sd">            dictionaries of sequences.</span>
+<span class="sd">        :param self.multiMSA.methodnames1:</span>
+<span class="sd">            A list of the names of the methods producing each MSA.</span>
+<span class="sd">        :param self.edgefunc:</span>
+<span class="sd">            The function used to calculate</span>
+<span class="sd">            the similarity between two sequences.</span>
+
+<span class="sd">        :return: A (nmethods*nspec) x (nmethods*nspec) matrix of edgeweights,</span>
+<span class="sd">            stored to ``self.edgeweights_pairwise``</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            | Sequences are blocked by method</span>
+<span class="sd">                (according to ``self.methodnames``).</span>
+<span class="sd">            | These blocks are ordered by the specified species order</span>
+<span class="sd">                (``self.allspecs``).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nn</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nummethods</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_pairwise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nn</span><span class="p">,</span> <span class="n">nn</span><span class="p">))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+        <span class="n">xcount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">s_x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">for</span> <span class="n">m_x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">:</span>
+                <span class="n">entry_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">MSAdict1</span><span class="p">[</span><span class="n">m_x</span><span class="p">]</span>
+                <span class="n">seq_x</span> <span class="o">=</span> <span class="n">entry_x</span><span class="p">[</span><span class="n">s_x</span><span class="p">]</span> <span class="k">if</span> <span class="n">s_x</span> <span class="ow">in</span> <span class="n">entry_x</span> <span class="k">else</span> <span class="bp">None</span>
+
+                <span class="n">ycount</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">s_y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                    <span class="k">for</span> <span class="n">m_y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">s_x</span> <span class="o">==</span> <span class="n">s_y</span><span class="p">):</span>
+                            <span class="n">ycount</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">continue</span>
+                        <span class="k">elif</span> <span class="n">ycount</span> <span class="o">&lt;=</span> <span class="n">xcount</span><span class="p">:</span>
+                            <span class="n">ycount</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">continue</span>
+
+                        <span class="n">entry_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">MSAdict1</span><span class="p">[</span><span class="n">m_y</span><span class="p">]</span>
+                        <span class="n">seq_y</span> <span class="o">=</span> <span class="n">entry_y</span><span class="p">[</span><span class="n">s_y</span><span class="p">]</span> <span class="k">if</span> <span class="n">s_y</span> <span class="ow">in</span> <span class="n">entry_y</span> <span class="k">else</span> <span class="bp">None</span>
+
+                        <span class="k">if</span> <span class="n">seq_x</span> <span class="ow">and</span> <span class="n">seq_y</span><span class="p">:</span>
+                            <span class="k">print</span> <span class="s">&quot;Calculating edge weights:&quot;</span><span class="p">,</span> \
+                                <span class="s">&#39;(</span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s"> vs. </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">m_x</span><span class="p">,</span> <span class="n">s_x</span><span class="p">,</span> <span class="n">m_y</span><span class="p">,</span> <span class="n">s_y</span><span class="p">)</span>
+
+                            <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_pairwise</span><span class="p">[</span><span class="n">xcount</span><span class="p">,</span> <span class="n">ycount</span><span class="p">]</span> <span class="o">=</span> \
+                                <span class="bp">self</span><span class="o">.</span><span class="n">edgefunc</span><span class="p">(</span><span class="n">seq_x</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">seq_y</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
+
+                            <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Value is&quot;</span><span class="p">,</span> \
+                                <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_pairwise</span><span class="p">[</span><span class="n">xcount</span><span class="p">,</span> <span class="n">ycount</span><span class="p">]</span>
+
+                        <span class="n">ycount</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">xcount</span> <span class="o">+=</span> <span class="mi">1</span>
+</div>
+<div class="viewcode-block" id="Mosaic.calc_sim_mat_toref"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.calc_sim_mat_toref">[docs]</a>    <span class="k">def</span> <span class="nf">calc_sim_mat_toref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal function: For &quot;to reference&quot; optimization,</span>
+<span class="sd">            calculate the similarity vector</span>
+<span class="sd">            that will relate each sequence to the reference.</span>
+
+<span class="sd">        :param self.multiMSA.MSAdict1:</span>
+<span class="sd">            A dictionary of dictionaries of sequences.</span>
+<span class="sd">        :param self.multiMSA.methodnames1:</span>
+<span class="sd">            A list of the names of the methods producing each MSA.</span>
+<span class="sd">        :param self.edgefunc: The function used to calculate</span>
+<span class="sd">            the similarity between two sequences.</span>
+<span class="sd">        :return: A (nspec) x (nspec) matrix of edgeweights,</span>
+<span class="sd">            stored to ``self.edgeweights_toref``</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This is the stage at which filtering takes place.</span>
+<span class="sd">            Any sequence below the similarity cutoff is not assigned</span>
+<span class="sd">            to the ``self.edgeweights_toref`` matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_toref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">),</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">nummethods</span><span class="p">))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+        <span class="n">met1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">seq_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">MSAdict1</span><span class="p">[</span><span class="n">met1</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">scount</span><span class="p">,</span> <span class="n">s_y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">mcount</span><span class="p">,</span> <span class="n">m_y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="n">s_y</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">entry_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">MSAdict1</span><span class="p">[</span><span class="n">m_y</span><span class="p">]</span>
+                <span class="n">seq_y</span> <span class="o">=</span> <span class="n">entry_y</span><span class="p">[</span><span class="n">s_y</span><span class="p">]</span> <span class="k">if</span> <span class="n">s_y</span> <span class="ow">in</span> <span class="n">entry_y</span> <span class="k">else</span> <span class="bp">None</span>
+
+                <span class="k">if</span> <span class="n">seq_x</span> <span class="ow">and</span> <span class="n">seq_y</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&quot;Calculating edge weights:&quot;</span><span class="p">,</span> <span class="n">scount</span><span class="p">,</span> <span class="n">mcount</span><span class="p">,</span> \
+                        <span class="s">&#39;(</span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s"> vs. </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">met1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">,</span> <span class="n">m_y</span><span class="p">,</span> <span class="n">s_y</span><span class="p">)</span>
+
+                    <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edgefunc</span><span class="p">(</span><span class="n">seq_x</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">seq_y</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">speccutoffs</span> <span class="ow">and</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">speccutoffs</span><span class="p">[</span><span class="n">s_y</span><span class="p">]:</span>
+                        <span class="k">print</span> <span class="s">&quot;Filtering sequence for&quot;</span><span class="p">,</span> <span class="n">s_y</span><span class="p">,</span> <span class="n">m_y</span>
+                        <span class="k">continue</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_toref</span><span class="p">[</span><span class="n">scount</span><span class="p">,</span> <span class="n">mcount</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+
+                    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Value is&quot;</span><span class="p">,</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_toref</span><span class="p">[</span><span class="n">scount</span><span class="p">,</span> <span class="n">mcount</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span> <span class="o">=</span> <span class="p">[</span><span class="n">s_y</span> <span class="k">for</span> <span class="n">scount</span><span class="p">,</span> <span class="n">s_y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">)</span>
+                         <span class="k">if</span> <span class="n">s_y</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="ow">or</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_toref</span><span class="p">[</span><span class="n">scount</span><span class="p">,</span> <span class="p">:]</span>
+                                <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span><span class="p">)]</span>
+</div>
+    <span class="k">def</span> <span class="nf">calc_edgeweights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_sim_mat_toref</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optrule</span> <span class="o">==</span> <span class="s">&#39;pairwise&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calc_sim_mat_pairwise</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Mosaic.opt_cluster_toref"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.opt_cluster_toref">[docs]</a>    <span class="k">def</span> <span class="nf">opt_cluster_toref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal function: Takes sequences from each species with</span>
+<span class="sd">            the highest similarity to the reference.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">retvals</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c"># Columns are methods, rows are species.</span>
+        <span class="c"># You want the indices of the row maxes.</span>
+        <span class="k">for</span> <span class="n">cc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">)):</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_toref</span><span class="p">[</span><span class="n">cc</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span><span class="p">):</span>
+                <span class="n">yindex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_toref</span><span class="p">[</span><span class="n">cc</span><span class="p">,</span> <span class="p">:])</span>
+                <span class="n">retvals</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">[</span><span class="n">cc</span><span class="p">]]</span> <span class="o">=</span> \
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">methodnames1</span><span class="p">[</span><span class="n">yindex</span><span class="p">],</span>
+                     <span class="n">cc</span><span class="p">,</span>
+                     <span class="n">yindex</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">retvals</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">[</span><span class="n">cc</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span> <span class="o">=</span> <span class="n">retvals</span>
+</div>
+    <span class="k">def</span> <span class="nf">gatherpairwisedifs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="n">mnum</span><span class="p">,</span> <span class="n">snum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_fromnames</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+
+        <span class="n">dist</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_toref</span><span class="p">[</span><span class="n">snum</span><span class="p">,</span> <span class="n">mnum</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">dd</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&#39;Why is distance to reference unknown for </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">?&#39;</span> \
+                  <span class="o">%</span> <span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span>
+
+        <span class="n">dist</span> <span class="o">+=</span> <span class="n">dd</span>
+
+        <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ss</span> <span class="o">!=</span> <span class="n">spec</span><span class="p">:</span>
+                <span class="n">i2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">i2</span> <span class="o">&lt;</span> <span class="n">index</span><span class="p">:</span>
+                    <span class="n">dd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_pairwise</span><span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">index</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_pairwise</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">i2</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">dd</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">&#39;Why is distance to bestspec unknown?</span><span class="se">\</span>
+<span class="s">                        (Index is </span><span class="si">%s</span><span class="s"> vs </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i2</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+                    <span class="k">print</span> <span class="s">&#39;This corresponds to </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s"> vs </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">&#39;</span> \
+                          <span class="o">%</span> <span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">spec</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+                    <span class="k">print</span> <span class="bp">self</span><span class="o">.</span><span class="n">indextomet_spec</span><span class="p">(</span><span class="n">i2</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">indextomet_spec</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">IndexError</span>
+                <span class="n">dist</span> <span class="o">+=</span> <span class="n">dd</span>
+        <span class="k">return</span> <span class="n">dist</span>
+
+    <span class="k">def</span> <span class="nf">initdict_pairwise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c">## Initialize return dictionary.</span>
+        <span class="k">for</span> <span class="n">scount</span><span class="p">,</span> <span class="n">ss</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="c">## Make sure you initialize with sequences that exist!</span>
+            <span class="k">for</span> <span class="n">mcount</span><span class="p">,</span> <span class="n">mm</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toindex</span><span class="p">(</span><span class="n">mcount</span><span class="p">,</span> <span class="n">scount</span><span class="p">)</span>
+
+                <span class="c">## Don&#39;t even try to include this species/method</span>
+                <span class="c">## if it has no sequences present that are</span>
+                <span class="c">## above the similarity cutoff</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_toref</span><span class="p">[</span><span class="n">scount</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mcount</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">mm</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
+                    <span class="k">break</span>
+
+        <span class="c">## Now go back through and fix pairwise dist numbers for each sequence</span>
+        <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">gatherpairwisedifs</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                        <span class="n">index</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Mosaic.optloop_pairwise"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.optloop_pairwise">[docs]</a>    <span class="k">def</span> <span class="nf">optloop_pairwise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal function: optimize cluster using pairwise similarities</span>
+<span class="sd">            and Gibbs sampling.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">print</span> <span class="s">&quot;optimizing pairwise&quot;</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">specnums</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">))</span>
+        <span class="n">metnums</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="p">))</span>
+
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Iteration&quot;</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="n">nochange</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">specnums</span><span class="p">)</span>  <span class="c"># pick a random species order</span>
+            <span class="k">for</span> <span class="n">scount</span> <span class="ow">in</span> <span class="n">specnums</span><span class="p">:</span>
+                <span class="n">ss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">[</span><span class="n">scount</span><span class="p">]</span>
+                <span class="n">met_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># initialize variables</span>
+                <span class="n">met_new</span> <span class="o">=</span> <span class="n">met_old</span>
+
+                <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">metnums</span><span class="p">)</span>  <span class="c"># pick a random method order</span>
+                <span class="k">for</span> <span class="n">mcount</span> <span class="ow">in</span> <span class="n">metnums</span><span class="p">:</span>
+                    <span class="n">mm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="n">mcount</span><span class="p">]</span>
+
+                    <span class="c">## The second condition below</span>
+                    <span class="c">## skips methods that have been filtered</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">mm</span> <span class="o">!=</span> <span class="n">met_old</span> <span class="ow">and</span>
+                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_toref</span><span class="p">[</span><span class="n">scount</span><span class="p">,</span> <span class="n">mcount</span><span class="p">]</span>
+                                 <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span><span class="p">)):</span>
+
+                        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toindex</span><span class="p">(</span><span class="n">mcount</span><span class="p">,</span> <span class="n">scount</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edgeweights_pairwise</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span>
+                                <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span><span class="p">):</span>
+                            <span class="k">continue</span>
+
+                        <span class="n">dist_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gatherpairwisedifs</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">mm</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">dist_new</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">][</span><span class="mi">2</span><span class="p">]:</span>
+                            <span class="n">met_new</span> <span class="o">=</span> <span class="n">mm</span>
+                            <span class="k">print</span> <span class="s">&quot;updating best seq for </span><span class="si">%s</span><span class="s"> from </span><span class="si">%s</span><span class="s"> to </span><span class="si">%s</span><span class="s"> &quot;</span> \
+                                  <span class="o">%</span> <span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">met_old</span><span class="p">,</span> <span class="n">met_new</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">dist_new</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">met_new</span> <span class="o">==</span> <span class="n">met_old</span><span class="p">:</span>
+                    <span class="n">nochange</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="n">nochange</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">specnums</span><span class="p">):</span>
+                <span class="k">break</span>
+
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">print</span> <span class="s">&quot;Optimization complete after </span><span class="si">%s</span><span class="s"> iterations!!!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">opt_cluster_pairwise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initdict_pairwise</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optloop_pairwise</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Mosaic.optimize_cluster"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.optimize_cluster">[docs]</a>    <span class="k">def</span> <span class="nf">optimize_cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal function: optimize the sequence cluster.</span>
+
+<span class="sd">        If ``self.optrule`` is &#39;pairwise&#39;, optimize cluster by picking the</span>
+<span class="sd">            sequence for each species</span>
+<span class="sd">            that optimizes the pairwise distance to current best sequences.</span>
+<span class="sd">            This is repeated cyclically until convergence is reached.</span>
+
+<span class="sd">        If ``self.optrule`` is &#39;toref&#39;, pick the sequence from each species</span>
+<span class="sd">            that is most similar to the reference sequence</span>
+
+<span class="sd">        If ``self.optrule`` is &#39;custom&#39;, apply the function defined</span>
+<span class="sd">            in ``self.customoptfunc`` to the ``self.edgeweights_toref``</span>
+<span class="sd">            and/or ``self.edgeweights_pairwise`` matrices</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optrule</span> <span class="o">==</span> <span class="s">&#39;pairwise&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt_cluster_pairwise</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">optrule</span> <span class="o">==</span> <span class="s">&#39;toref&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt_cluster_toref</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">optrule</span> <span class="o">==</span> <span class="s">&#39;custom&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">customoptfunc</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s">&#39;Did not recognize cluster optimization rule: </span><span class="si">%s</span><span class="s">.&#39;</span>
+                <span class="s">&#39;Available options are: pairwise, toref, and custom.&#39;</span>
+                <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">optrule</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_writefunc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">MSAdict</span><span class="p">,</span> <span class="n">toloop</span><span class="p">,</span> <span class="n">labelfunc</span><span class="p">,</span>
+                   <span class="n">inclspec</span><span class="p">,</span> <span class="n">inclmet</span><span class="p">):</span>
+
+        <span class="k">print</span> <span class="s">&quot;Writing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="n">toloop</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">methods</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">ss</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> \
+                    <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">specmethoddict</span><span class="p">[</span><span class="n">ss</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">seq</span> <span class="o">=</span> <span class="n">MSAdict</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="n">ss</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">labelfunc</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">labelfunc</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ss</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">seq</span><span class="o">.</span><span class="n">name</span>
+                    <span class="k">if</span> <span class="n">inclspec</span> <span class="ow">and</span> <span class="n">inclmet</span><span class="p">:</span>
+                        <span class="n">label</span> <span class="o">+=</span> <span class="s">&#39; (</span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">inclspec</span><span class="p">:</span>
+                        <span class="n">label</span> <span class="o">+=</span> <span class="s">&#39; (</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">method</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">inclmet</span><span class="p">:</span>
+                        <span class="n">label</span> <span class="o">+=</span> <span class="s">&#39; (</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">method</span><span class="p">)</span>
+                <span class="n">f1</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;&gt;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">seq</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)))</span>
+
+<div class="viewcode-block" id="Mosaic.write_unaligned"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.write_unaligned">[docs]</a>    <span class="k">def</span> <span class="nf">write_unaligned</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename1</span><span class="p">,</span> <span class="n">filename2</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">inclspec</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                        <span class="n">inclmet</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">specorder</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">labelfunc</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write (unaligned) optimal sequences to a file.</span>
+
+<span class="sd">        :param filename1: The file to which to write the primary MSAlist</span>
+<span class="sd">        :param filename2: The file to which to write the secondary MSAlist</span>
+<span class="sd">        :param inclspec: Whether to include the species name</span>
+<span class="sd">            in the sequence labels</span>
+<span class="sd">        :param inclmet: Whether to include the method name</span>
+<span class="sd">            in the sequence labels</span>
+<span class="sd">        :param specorder: If specified, a different order</span>
+<span class="sd">            for species in the output</span>
+<span class="sd">        :param labelfunc: If specified, a function to output sequence labels.</span>
+<span class="sd">            Should be of the form labelfunc(seq.name, species, method)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">unalignedfile1</span> <span class="o">=</span> <span class="n">filename1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unalignedfile2</span> <span class="o">=</span> <span class="n">filename2</span>
+
+        <span class="n">toloop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span> <span class="k">if</span> <span class="n">specorder</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> \
+            <span class="p">[</span><span class="n">xx</span> <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">specorder</span> <span class="k">if</span> <span class="n">xx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allspecs</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toloop</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;No species to write!&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unalignedfile1</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unalignedfile2</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_writefunc</span><span class="p">(</span><span class="n">filename1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">MSAdict1</span><span class="p">,</span> <span class="n">toloop</span><span class="p">,</span>
+                        <span class="n">labelfunc</span><span class="p">,</span> <span class="n">inclspec</span><span class="p">,</span> <span class="n">inclmet</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filename2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_writefunc</span><span class="p">(</span><span class="n">filename2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiMSA</span><span class="o">.</span><span class="n">MSAdict2</span><span class="p">,</span> <span class="n">toloop</span><span class="p">,</span>
+                            <span class="n">labelfunc</span><span class="p">,</span> <span class="n">inclspec</span><span class="p">,</span> <span class="n">inclmet</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Mosaic.alignfunc"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.alignfunc">[docs]</a>    <span class="k">def</span> <span class="nf">alignfunc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_in</span><span class="p">,</span> <span class="n">f_out</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ir</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create multiple sequence alignment from unaligned sequences</span>
+
+<span class="sd">        :param f_in: The file of unaligned sequence.</span>
+<span class="sd">        :param f_out: The desired output filename.</span>
+<span class="sd">        :param ir: Specifies the -ir flag to msaprobs</span>
+<span class="sd">        :param c: Specifies the -c flag to msaprobs</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This function requires</span>
+<span class="sd">            `msaprobs &lt;http://msaprobs.sourceforge.net/homepage.htm#latest&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">annotfile</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">.annot&#39;</span> <span class="o">%</span> <span class="n">f_out</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Attempting to align using MSAProbsCommandline.&quot;</span>
+            <span class="kn">from</span> <span class="nn">Bio.Align.Applications</span> <span class="kn">import</span> <span class="n">MSAProbsCommandline</span>
+
+            <span class="n">cline</span> <span class="o">=</span> <span class="n">MSAProbsCommandline</span><span class="p">(</span><span class="n">infile</span><span class="o">=</span><span class="n">f_in</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="n">f_out</span><span class="p">,</span>
+                                        <span class="n">annot</span><span class="o">=</span><span class="n">annotfile</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">cline</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e1</span><span class="p">:</span>
+            <span class="k">print</span> <span class="n">e1</span>
+            <span class="k">print</span> <span class="s">&quot;Trying another way...&quot;</span>
+
+            <span class="n">callstr</span> <span class="o">=</span> <span class="s">&#39;msaprobs -annot </span><span class="si">%s</span><span class="s"> -c </span><span class="si">%s</span><span class="s"> -ir </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">annotfile</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">ir</span><span class="p">)</span>
+
+            <span class="n">tf</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">o</span> <span class="o">=</span> <span class="n">getstatusoutput</span><span class="p">(</span><span class="s">&quot;cat </span><span class="si">%s</span><span class="s"> | sed &#39;s/\*/X/g&#39; &gt; </span><span class="si">%s</span><span class="s">&quot;</span>
+                                   <span class="o">%</span> <span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">s</span><span class="p">,</span> <span class="n">o</span> <span class="o">=</span> <span class="n">getstatusoutput</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> &gt; </span><span class="si">%s</span><span class="s">&#39;</span>
+                                       <span class="o">%</span> <span class="p">(</span><span class="n">callstr</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">f_out</span><span class="p">))</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Error removing temporary file&quot;</span>
+                <span class="k">print</span> <span class="n">e</span>
+
+            <span class="k">if</span> <span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;ERROR in aligning sequence&quot;</span>
+                <span class="k">print</span> <span class="n">o</span>
+                <span class="k">raise</span> <span class="ne">OSError</span>
+</div>
+<div class="viewcode-block" id="Mosaic.AAtoDNA"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.AAtoDNA">[docs]</a>    <span class="k">def</span> <span class="nf">AAtoDNA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_AA_aligned</span><span class="p">,</span> <span class="n">f_DNA_unaligned</span><span class="p">,</span> <span class="n">f_DNA_out</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a DNA multiple sequence alignment</span>
+<span class="sd">            from an amino acid multiple sequence alignment</span>
+
+<span class="sd">        :param f_AA_aligned:  File containing aligned amino acid sequences</span>
+<span class="sd">        :param f_DNA_unaligned: The file containing unaligned DNA sequences</span>
+<span class="sd">        :param f_DNA_out: The desired output DNA filename.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This function requires</span>
+<span class="sd">            `pal2nal &lt;http://www.bork.embl.de/pal2nal/&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">callstr</span> <span class="o">=</span> <span class="s">&#39;perl pal2nal.pl </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> -output fasta &gt; </span><span class="si">%s</span><span class="s">&#39;</span> \
+                  <span class="o">%</span> <span class="p">(</span><span class="n">f_AA_aligned</span><span class="p">,</span> <span class="n">f_DNA_unaligned</span><span class="p">,</span> <span class="n">f_DNA_out</span><span class="p">)</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">o</span> <span class="o">=</span> <span class="n">getstatusoutput</span><span class="p">(</span><span class="n">callstr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Error in pal2nal&quot;</span>
+            <span class="k">print</span> <span class="n">o</span>
+            <span class="k">raise</span> <span class="ne">OSError</span>
+</div>
+<div class="viewcode-block" id="Mosaic.align"><a class="viewcode-back" href="../Module.html#mosaic.Mosaic.align">[docs]</a>    <span class="k">def</span> <span class="nf">align</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename1</span><span class="p">,</span> <span class="n">filename2</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">AAtoDNA</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Align orthologous sequences.</span>
+
+<span class="sd">        :param filename1: Output filename for primary alignments</span>
+<span class="sd">        :param filename2: Output filename for secondary alignments</span>
+<span class="sd">        :param AAtoDNA: Specifies that secondary sequences</span>
+<span class="sd">            are DNA and should be aligned based on AA alignment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unalignedfile1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alignfunc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unalignedfile1</span><span class="p">,</span> <span class="n">filename1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">filename2</span> <span class="ow">and</span> <span class="n">AAtoDNA</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AAtoDNA</span><span class="p">(</span><span class="n">filename1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unalignedfile2</span><span class="p">,</span> <span class="n">filename2</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">filename2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">alignfunc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unalignedfile2</span><span class="p">,</span> <span class="n">filename2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;No file to align!&quot;</span></div></div>
+</pre></div>
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014, M. Cyrus Maher.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+.. image:: MOSAIC.jpg
+	:align: right
+	:scale: 55 %
+	:target: http://www.dignanmosaics.com/index.html
+
+Module description
+===================
+
+
+*Code is available* `here <https://github.com/cyrusmaher/mosaic>`_
+
+Helper functions
+-----------------
+.. automodule:: mosaic
+.. autofunction:: pairwisealign
+
+
+MultiMSA class
+---------------
+.. autoclass:: MultiMSA
+   :members:
+
+
+Mosaic class
+-------------
+.. autoclass:: Mosaic
+   :members:
+   
+

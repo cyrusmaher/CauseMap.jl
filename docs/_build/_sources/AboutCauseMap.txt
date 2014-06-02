@@ -1,0 +1,35 @@
+.. figure:: MOSAIC.jpg
+	:align: right
+	:scale: 55 %
+	:target: http://www.dignanmosaics.com/index.html
+	
+
+About CauseMap
+=============
+
+
+
+Introduction
+-------------
+
+How CauseMap works
+-----------------
+
+
+Installing CauseMap
+------------------
+
+	
+
+Tutorial
+---------
+
+
+Example script
+--------------
+
+Publications
+--------------
+
+
+
