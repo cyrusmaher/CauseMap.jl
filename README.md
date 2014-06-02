@@ -1,4 +1,9 @@
 CauseMap
 ========
+CauseMap is an implementation of Convergent Cross Mapping (CCM), written in Julia.
 
-CauseMap info will go here!
+For more information, please check out the website: http://cyrusmaher.github.io/CauseMap/
+
+
+
+
