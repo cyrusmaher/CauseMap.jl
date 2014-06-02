@@ -15,7 +15,6 @@ function sample_w_rep(item::Vector, nsamps::Int64)
     return retval
 end
 
-
 function processbootstrap(resvec::Vector{Any}; nreps::Int64=1000, lastx::Int64=10)
     samptmp       = nans(Float64, length(resvec))
     bootstrapmeds = nans(Float64, nreps)
