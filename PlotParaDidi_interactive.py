@@ -87,4 +87,7 @@ hold(False)
 
 gridplot([[ts1, ts2], [manifx, manify], [manif, manif]])
 
+snippet= curplot().create_html_snippet()
+print snippet
+
 show()

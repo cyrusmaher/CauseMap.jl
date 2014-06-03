@@ -1,6 +1,6 @@
 |
 Welcome to CauseMap
-==============
+====================
 
 .. image:: logo.jpg
     :height: 175px
@@ -13,12 +13,21 @@ Welcome to CauseMap
 .. image:: poisson_saturne.jpg
     :height: 175px
     :target: http://www.chaoscope.org/gallery.htm
+
 |
 CauseMap is an implementation of Convergent Cross Mapping (CCM) [1]_, written in Julia.
 
 To get started right away, follow the :doc:`Quickstart <Quickstart>`.
 
 Source code is available here: https://github.com/cyrusmaher/CauseMap
+
+.. raw:: html
+
+   <html>
+   <big>text</big>
+   <script src="8eb46d9b-0e4e-4978-9a20-0fb6d4311ea1.embed.js" bokeh_plottype="embeddata"
+        bokeh_modelid="8eb46d9b-0e4e-4978-9a20-0fb6d4311ea1" bokeh_modeltype="GridPlot" async="true"></script>
+   </html>
 
 
 .. toctree::
