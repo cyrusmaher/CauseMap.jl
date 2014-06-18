@@ -33,7 +33,7 @@ How CauseMap works
 ------------------
 To get a feel for the algorithm and the intuition behind it, we highly recommend
 the following two videos from `George Sugihara <http://scrippsscholars.ucsd.edu/gsugihara/biocv>`_'s group at UCSD.
-|
+
 
 Time series as projections of full system dynamics
 ++++++++++++++++++++++++++++++++++++++++++++++++++
