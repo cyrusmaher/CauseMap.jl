@@ -1,18 +1,23 @@
 About CauseMap
 =============
 
-.. image:: logo.jpg
-    :height: 175px
-    :target: http://www.chaoscope.org/gallery.htm
+.. raw:: html
 
-.. image:: no_logo.jpg
-    :height: 175px
-    :target: http://www.chaoscope.org/gallery.htm
+    <p>
+    <table>
+    <tr>
 
-.. image:: poisson_saturne.jpg
-    :height: 175px
-    :target: http://www.chaoscope.org/gallery.htm
-|
+:raw-html:`<td>` |image1| :raw-html:`</td>`
+:raw-html:`<td>` |image2| :raw-html:`</td>`
+:raw-html:`<td>` |image3| :raw-html:`</td>`
+
+.. raw:: html
+
+    </tr>
+    </table>
+    </p>
+
+.. _intro:
 Introduction
 -------------
 Convergent cross mapping (CCM) provides a model-free approach to detecting dependencies
@@ -27,8 +32,7 @@ to capture system dynamics.
 How CauseMap works
 ------------------
 To get a feel for the algorithm and the intuition behind it, we highly recommend
-the following two videos.
-
+the following two videos from George Sugihara's group at UCSD.
 |
 
 Time series as projections of full system dynamics

@@ -172,8 +172,8 @@ html_theme_options = {
     'bootstrap_version': "3",
 }
 
-html_logo = "enso_20.jpeg"
-html_favicon = "enso_16.ico"
+html_logo = "_static/enso_20.jpeg"
+html_favicon = "_static/enso_16.ico"
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
 
@@ -308,6 +308,34 @@ texinfo_documents = [
    'Miscellaneous'),
 ]
 
+rst_prolog = """
+    .. raw:: html
+
+        <style type="text/css">
+        table {
+          border-spacing: 3px;
+          border-collapse: separate;
+        }
+        </style>
+    .. |image1| image:: _static/logo.jpg
+       :target: http://www.chaoscope.org/gallery.htm
+       :height: 150px
+       :width: 190px
+
+    .. |image2| image:: _static/no_logo.jpg
+       :target: http://www.chaoscope.org/gallery.htm
+       :height: 150px
+       :width: 195px
+
+    .. |image3| image:: _static/poisson_saturne.jpg
+       :target: http://www.chaoscope.org/gallery.htm
+       :height: 150px
+       :width: 195px
+
+    .. role:: raw-html(raw)
+       :format: html
+
+"""
 # Documents to append as an appendix to all manuals.
 #texinfo_appendices = []
 

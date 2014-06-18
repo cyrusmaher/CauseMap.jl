@@ -146,15 +146,23 @@
   <div class="row">
     <div class="col-md-12">
       
-  <div class="section" id="quickstart">
+  <blockquote>
+<div><style type="text/css">
+table {
+  border-spacing: 3px;
+  border-collapse: separate;
+}
+</style></div></blockquote>
+<div class="section" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
-<a class="reference external image-reference" href="http://www.chaoscope.org/gallery.htm"><img alt="_images/logo.jpg" src="_images/logo.jpg" style="height: 175px;" /></a>
-<a class="reference external image-reference" href="http://www.chaoscope.org/gallery.htm"><img alt="_images/no_logo.jpg" src="_images/no_logo.jpg" style="height: 175px;" /></a>
-<a class="reference external image-reference" href="http://www.chaoscope.org/gallery.htm"><img alt="_images/poisson_saturne.jpg" src="_images/poisson_saturne.jpg" style="height: 175px;" /></a>
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
-<div class="section" id="installation">
+<p>
+<table>
+<tr><p><span class="raw-html"><td></span> <a class="reference external" href="http://www.chaoscope.org/gallery.htm"><img alt="image1" src="_images/logo1.jpg" style="width: 190px; height: 150px;" /></a> <span class="raw-html"></td></span>
+<span class="raw-html"><td></span> <a class="reference external" href="http://www.chaoscope.org/gallery.htm"><img alt="image2" src="_images/no_logo1.jpg" style="width: 195px; height: 150px;" /></a> <span class="raw-html"></td></span>
+<span class="raw-html"><td></span> <a class="reference external" href="http://www.chaoscope.org/gallery.htm"><img alt="image3" src="_images/poisson_saturne1.jpg" style="width: 195px; height: 150px;" /></a> <span class="raw-html"></td></span></p>
+</tr>
+</table>
+</p><div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>CauseMap will be made available as a registered Julia package. <br />
 To install, the user will simply have to type <tt class="docutils literal"><span class="pre">Pkg.add(&quot;CauseMap&quot;)</span></tt> from the Julia REPL.
@@ -167,25 +175,7 @@ CauseMap functions can then be loaded using <tt class="docutils literal"><span c
 <h2>Example script<a class="headerlink" href="#example-script" title="Permalink to this headline">¶</a></h2>
 <p>CauseMap is designed for rapid analysis. After setting a few tuning parameters,
 the user is ready to analyze and plot the results.</p>
-<div class="highlight-julia"><div class="highlight"><pre><span class="n">require</span><span class="p">(</span><span class="s">&quot;CauseMap.jl&quot;</span><span class="p">)</span>
-
-<span class="n">libsizemin</span> <span class="o">=</span> <span class="mi">8</span>   <span class="c"># minimum library size</span>
-<span class="n">libsizemax</span> <span class="o">=</span> <span class="mi">58</span> <span class="c"># maximum library size</span>
-<span class="n">pred_start</span> <span class="o">=</span> <span class="mi">13</span> <span class="c"># first point to predict</span>
-<span class="n">npred</span>      <span class="o">=</span> <span class="mi">60</span>  <span class="c"># number of time series points to predict (larger is better)</span>
-
-<span class="n">E_vals</span>     <span class="o">=</span> <span class="mi">2</span><span class="p">:</span><span class="mi">10</span>  <span class="c"># range to test of system dimensionality</span>
-<span class="n">tau_s_vals</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span> <span class="c"># range for lag length for manifold reconstruction</span>
-<span class="n">tau_p_vals</span> <span class="o">=</span> <span class="mi">0</span><span class="p">:</span><span class="mi">15</span>  <span class="c"># range to test for time lag of causal effect</span>
-</pre></div>
-</div>
 <p>The tuning parameters above are described in greater depth elsewhere. Now we were ready to get results!</p>
-<div class="highlight-julia"><div class="highlight"><pre><span class="n">makeoptimizationplots</span><span class="p">(</span><span class="n">para</span><span class="p">,</span> <span class="n">didi</span><span class="p">,</span> <span class="n">libsizemin</span><span class="p">,</span> <span class="n">libsizemax</span><span class="p">,</span> <span class="n">E_vals</span><span class="p">,</span> 
-			<span class="n">tau_s_vals</span><span class="p">,</span> <span class="n">tau_p_vals</span><span class="p">,</span> <span class="n">npred</span><span class="p">,</span> <span class="n">pred_start</span><span class="p">,</span>
-			<span class="s">&quot;Para.&quot;</span><span class="p">,</span> <span class="s">&quot;Didi.&quot;</span><span class="p">;</span> <span class="n">nreps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_E</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">left_tau_p</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
-                                    <span class="n">right_E</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">right_tau_p</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">lagunit</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">&quot;days&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
 <div class="section" id="result">
 <h3>Result<a class="headerlink" href="#result" title="Permalink to this headline">¶</a></h3>
 <p>This produces the plot below:</p>
