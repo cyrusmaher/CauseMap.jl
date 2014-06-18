@@ -1,18 +1,22 @@
 Quickstart
 ==========
-.. image:: logo.jpg
-    :height: 175px
-    :target: http://www.chaoscope.org/gallery.htm
 
-.. image:: no_logo.jpg
-    :height: 175px
-    :target: http://www.chaoscope.org/gallery.htm
+.. raw:: html
 
-.. image:: poisson_saturne.jpg
-    :height: 175px
-    :target: http://www.chaoscope.org/gallery.htm
+    <p>
+    <table>
+    <tr>
 
-|
+:raw-html:`<td>` |image1| :raw-html:`</td>`
+:raw-html:`<td>` |image2| :raw-html:`</td>`
+:raw-html:`<td>` |image3| :raw-html:`</td>`
+
+.. raw:: html
+
+    </tr>
+    </table>
+    </p>
+
 Installation
 ------------
 CauseMap will be made available as a registered Julia package. |br|
