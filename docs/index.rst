@@ -25,6 +25,8 @@ To get started right away, follow the :doc:`Quickstart <Quickstart>`.
 
 Source code is available here: https://github.com/cyrusmaher/CauseMap.jl
 
+Also, feel free to check out the latest version of our `paper <https://github.com/cyrusmaher/CauseMap.jl/blob/master/manuscripts/CauseMap_latest.docx?raw=true>`_!
+
 
 
 .. toctree::
