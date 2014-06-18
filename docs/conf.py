@@ -320,17 +320,17 @@ rst_prolog = """
     .. |image1| image:: _static/logo.jpg
        :target: http://www.chaoscope.org/gallery.htm
        :height: 150px
-       :width: 190px
+       :width: 193px
 
     .. |image2| image:: _static/no_logo.jpg
        :target: http://www.chaoscope.org/gallery.htm
        :height: 150px
-       :width: 195px
+       :width: 193px
 
     .. |image3| image:: _static/poisson_saturne.jpg
        :target: http://www.chaoscope.org/gallery.htm
        :height: 150px
-       :width: 195px
+       :width: 193px
 
     .. role:: raw-html(raw)
        :format: html
