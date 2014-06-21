@@ -4,7 +4,7 @@ using Stats
 using Distance
 using PyCall
 
-export makesingleplot, makeoptimizationplots, optandcalcCCM
+export makesingleplot, makeoptimizationplots, optandcalcCCM, calcCCM, precalc_manif_dists
 
 function sample_w_rep(item::Vector, nsamps::Int64)
     retval = nans(nsamps)
@@ -520,6 +520,7 @@ function makesingleplot(vec1::AbstractVector, vec2::AbstractVector, libsizemin::
     var2name: Name of second variable
     lib_start: Start of library
     """
+    @pyimport matplotlib.pyplot as plt
     shadowmat_dict_vec1, distmat_dict_vec1 = precalc_manif_dists(3:3, 1:1, vec1)
     shadowmat_dict_vec2, distmat_dict_vec2 = precalc_manif_dists(3:3, 1:1, vec2)
 
