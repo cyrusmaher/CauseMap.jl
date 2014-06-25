@@ -1,6 +1,5 @@
 module CauseMap
 
-using Stats
 using Distance
 using PyCall
 
