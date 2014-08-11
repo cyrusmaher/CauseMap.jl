@@ -52,6 +52,7 @@ Reconstructing full system dynamics using mathemagics!
 
    <iframe width="610" height="320" src="http://www.youtube.com/embed/NrFdIz-D2yM" frameborder="1" allowfullscreen></iframe>
 
+
 |
 
 In summary, the first animation explains how time series can be viewed as projections of

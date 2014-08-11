@@ -23,7 +23,10 @@ CauseMap will be made available as a registered Julia package. |br|
 To install, the user will simply have to type ``Pkg.add("CauseMap")`` from the Julia REPL.
 CauseMap can then be imported with ``using CauseMap``.
 |br|
-This has been delayed due to an error in the versioning of a CauseMap dependency.
+|br|
+*Note: this has been briefly delayed due to an error in the versioning of a CauseMap dependency.*
+|br|
+|br|
 In the meantime, users can download CauseMap.jl `here <https://github.com/cyrusmaher/CauseMap>`_.
 CauseMap functions can then be loaded using ``require("CauseMap.jl")``.
 
@@ -32,12 +35,12 @@ Example script
 CauseMap is designed for rapid analysis. After setting a few tuning parameters,
 the user is ready to analyze and plot the results.
 
-.. literalinclude:: ../CCM_example_para_didi.jl
+.. literalinclude:: ../examples/CCM_example_para_didi.jl
    :language: julia
    :lines: 1-10
 The tuning parameters above are described in greater depth elsewhere. Now we were ready to get results!
 
-.. literalinclude:: ../CCM_example_para_didi.jl
+.. literalinclude:: ../examples/CCM_example_para_didi.jl
    :language: julia
    :lines: 17-20
 
@@ -45,7 +48,7 @@ Result
 ++++++
 This produces the plot below:
 
-.. figure:: ../ParaDidi_optim.jpeg
+.. figure:: ../images/ParaDidi_optim.jpeg
    :height: 250px
 
    In the left panel, we see convergence for both causal directions, suggesting a bi-directional causal effect.

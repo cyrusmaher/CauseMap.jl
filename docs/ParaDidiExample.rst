@@ -19,4 +19,4 @@ Below we provide plots of the time series of Paramecium and Didinium, as well as
 
 Note that corresponding points can be simultaneously highlighted across plots using the ``select`` tool.
 
-:download:`Here are the plots! <ParaDidiExample.html>`.
+:download:`Here are the plots! <ParaDidiExample_plot.html>`.

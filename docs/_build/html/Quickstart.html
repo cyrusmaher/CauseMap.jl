@@ -168,19 +168,41 @@ table {
 To install, the user will simply have to type <tt class="docutils literal"><span class="pre">Pkg.add(&quot;CauseMap&quot;)</span></tt> from the Julia REPL.
 CauseMap can then be imported with <tt class="docutils literal"><span class="pre">using</span> <span class="pre">CauseMap</span></tt>.
 <br />
-Alternatively, users can download CauseMap.jl <a class="reference external" href="https://github.com/cyrusmaher/CauseMap">here</a>.
+<br />
+<em>Note: this has been briefly delayed due to an error in the versioning of a CauseMap dependency.</em>
+<br />
+<br />
+In the meantime, users can download CauseMap.jl <a class="reference external" href="https://github.com/cyrusmaher/CauseMap">here</a>.
 CauseMap functions can then be loaded using <tt class="docutils literal"><span class="pre">require(&quot;CauseMap.jl&quot;)</span></tt>.</p>
 </div>
 <div class="section" id="example-script">
 <h2>Example script<a class="headerlink" href="#example-script" title="Permalink to this headline">¶</a></h2>
 <p>CauseMap is designed for rapid analysis. After setting a few tuning parameters,
 the user is ready to analyze and plot the results.</p>
+<div class="highlight-julia"><div class="highlight"><pre><span class="n">require</span><span class="p">(</span><span class="s">&quot;CauseMap.jl&quot;</span><span class="p">)</span>
+
+<span class="n">libsizemin</span> <span class="o">=</span> <span class="mi">8</span>   <span class="c"># minimum library size</span>
+<span class="n">libsizemax</span> <span class="o">=</span> <span class="mi">58</span> <span class="c"># maximum library size</span>
+<span class="n">pred_start</span> <span class="o">=</span> <span class="mi">13</span> <span class="c"># first point to predict</span>
+<span class="n">npred</span>      <span class="o">=</span> <span class="mi">60</span>  <span class="c"># number of time series points to predict (larger is better)</span>
+
+<span class="n">E_vals</span>     <span class="o">=</span> <span class="mi">2</span><span class="p">:</span><span class="mi">10</span>  <span class="c"># range to test of system dimensionality</span>
+<span class="n">tau_s_vals</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span> <span class="c"># range for lag length for manifold reconstruction</span>
+<span class="n">tau_p_vals</span> <span class="o">=</span> <span class="mi">0</span><span class="p">:</span><span class="mi">15</span>  <span class="c"># range to test for time lag of causal effect</span>
+</pre></div>
+</div>
 <p>The tuning parameters above are described in greater depth elsewhere. Now we were ready to get results!</p>
+<div class="highlight-julia"><div class="highlight"><pre><span class="n">makeoptimizationplots</span><span class="p">(</span><span class="n">para</span><span class="p">,</span> <span class="n">didi</span><span class="p">,</span> <span class="n">libsizemin</span><span class="p">,</span> <span class="n">libsizemax</span><span class="p">,</span> <span class="n">E_vals</span><span class="p">,</span> 
+			<span class="n">tau_s_vals</span><span class="p">,</span> <span class="n">tau_p_vals</span><span class="p">,</span> <span class="n">npred</span><span class="p">,</span> <span class="n">pred_start</span><span class="p">,</span>
+			<span class="s">&quot;Para.&quot;</span><span class="p">,</span> <span class="s">&quot;Didi.&quot;</span><span class="p">;</span> <span class="n">nreps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_E</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">left_tau_p</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                                    <span class="n">right_E</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">right_tau_p</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">lagunit</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">&quot;days&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <div class="section" id="result">
 <h3>Result<a class="headerlink" href="#result" title="Permalink to this headline">¶</a></h3>
 <p>This produces the plot below:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="../ParaDidi_optim.jpeg"><img alt="../ParaDidi_optim.jpeg" src="../ParaDidi_optim.jpeg" style="height: 250px;" /></a>
+<a class="reference internal image-reference" href="_images/ParaDidi_optim.jpeg"><img alt="_images/ParaDidi_optim.jpeg" src="_images/ParaDidi_optim.jpeg" style="height: 250px;" /></a>
 <p class="caption">In the left panel, we see convergence for both causal directions, suggesting a bi-directional causal effect.</p>
 </div>
 <p>For a look at the data behind this analysis,
