@@ -7,7 +7,7 @@ This is a well-studied, unicellular predator-prey system with interesting non-li
 
 A cool video!
 +++++++++++++
-To see these crazy mofos in action, check out this video:
+To see these guys in action, check out a couple minutes of this video:
 
 .. raw:: html
 

@@ -23,7 +23,8 @@ CauseMap will be made available as a registered Julia package. |br|
 To install, the user will simply have to type ``Pkg.add("CauseMap")`` from the Julia REPL.
 CauseMap can then be imported with ``using CauseMap``.
 |br|
-Alternatively, users can download CauseMap.jl `here <https://github.com/cyrusmaher/CauseMap>`_.
+This has been delayed due to an error in the versioning of a CauseMap dependency.
+In the meantime, users can download CauseMap.jl `here <https://github.com/cyrusmaher/CauseMap>`_.
 CauseMap functions can then be loaded using ``require("CauseMap.jl")``.
 
 Example script
