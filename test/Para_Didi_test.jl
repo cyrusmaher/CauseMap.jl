@@ -1,3 +1,4 @@
+using Base.Test
 using CauseMap
 
 function getvectors(vec1::AbstractVector, vec2::AbstractVector, libsizemin::Int64, libsizemax::Int64, E::Int64, 
