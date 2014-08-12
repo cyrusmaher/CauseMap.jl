@@ -1,4 +1,4 @@
-require("CauseMap.jl")
+using CauseMap
 
 libsizemin = 8   # minimum library size
 libsizemax = 58 # maximum library size
