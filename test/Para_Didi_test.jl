@@ -1,5 +1,4 @@
 using CauseMap
-using Debug 
 
 function getvectors(vec1::AbstractVector, vec2::AbstractVector, libsizemin::Int64, libsizemax::Int64, E::Int64, 
     tau_s::Int64, tau_p::Int64, npred::Int64, pred_start::Int64, lib_start::Int64=1)
