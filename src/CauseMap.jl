@@ -1,10 +1,36 @@
 module CauseMap
-
 using Stats
-using Distance
+using Base.LinAlg.BLAS 
 using PyCall
 
-export makesingleplot, makeoptimizationplots, optandcalcCCM
+export makesingleplot, makeoptimizationplots, optandcalcCCM, precalc_manif_dists, calcCCM
+
+
+function _sqsum(a)
+    m, n = size(a)
+    ans = Array(Float64, n, 1)
+    for i = 1:n
+        ans[i] = sum(abs2(a[:, i]))
+    end
+    return(ans)
+end
+
+# The code below is adapted from Dahua Lin's blog post here: http://julialang.org/blog/2013/09/fast-numeric/
+function vecdist(a1::Array{Float64, 2}, a2::Array{Float64, 2})
+    m, n = size(a1)
+    sa = _sqsum(a1)
+    sb = _sqsum(a2)
+    r = sa .+ reshape(sb, 1, n)
+    
+    #Update C as alpha*A*B + beta*C 
+    # or the other three variants according to tA (transpose A) and tB. Returns the updated C.
+    gemm!('T', 'N', -2.0, a1, a2, 1.0, r)
+    for i = 1:length(r)
+        r[i] = sqrt(r[i])
+    end
+    return(r)
+end
+
 
 function sample_w_rep(item::Vector, nsamps::Int64)
     retval = nans(nsamps)
@@ -35,17 +61,13 @@ end
 
 ### functions for attractor reconstruction and distance calculation
 function calc_dists(shadowmat::Array{Float64,2})
-    return sqrt(pairwise(SqEuclidean(), shadowmat))
+    return vecdist(shadowmat, shadowmat)
+    #return sqrt(pairwise(SqEuclidean(), shadowmat))
 end
 
 
 function calc_perms(shadowmat::Array{Float64,2})
     return [sortperm(shadowmat[:,xx]) for xx in 1:size(shadowmat,2)]
-end
-
-
-function calc_nearest_neighbors()
-    println("Implement this!")
 end
 
 
@@ -135,7 +157,6 @@ end
 
 
 function weightfunc(distances::Array{Float64}; kernelargs...)
-    #return pdf(Weibull(1), distances)
     w = [exp(-d) for d in distances]
     return w/sum(w)
 end
@@ -154,7 +175,7 @@ function getdist!(dist_top::Vector{Float64}, inds_touse::AbstractVector{Int64}, 
     else
         min_dist::Float64 = dist_top[1]
         for xx in num_neighbors:-1:1
-            dist_top[xx] = dist_top[xx]/min_dist
+            dist_top[xx] = dist_top[xx] / min_dist
         end
         return min_dist
     end
@@ -162,14 +183,14 @@ end
 
 
 function getpredstartstop(nobs::Int, ll::Int, lib_size::Int, npred::Int, pred_start_min::Int64)
-    left::Int64     = iceil(npred/2)
+    left::Int64     = iceil(npred / 2)
     right::Int64    = npred - left - 1
-    midpoint::Int64 = iceil(ll+lib_size/2)
+    midpoint::Int64 = iceil(ll + lib_size / 2)
     lp::Int64       = midpoint - left
     rp::Int64       = midpoint + right
 
     if lp < pred_start_min
-        rp += (pred_start_min-lp)
+        rp += (pred_start_min - lp)
         lp  = pred_start_min
     end
 
@@ -178,7 +199,7 @@ function getpredstartstop(nobs::Int, ll::Int, lib_size::Int, npred::Int, pred_st
         rp  = nobs
     end
     
-    if rp-lp+1 != npred 
+    if (rp - lp + 1) != npred 
         error("start and stop not equal to npred")
     end
 
