@@ -1,5 +1,4 @@
 module CauseMap
-using Stats
 using Base.LinAlg.BLAS 
 using PyCall
 
