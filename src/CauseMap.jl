@@ -2,6 +2,7 @@ module CauseMap
 using Base.LinAlg.BLAS 
 using PyCall
 
+
 export makesingleplot, makeoptimizationplots, optandcalcCCM, precalc_manif_dists, calcCCM
 
 
@@ -14,7 +15,7 @@ function _sqsum(a)
     return(ans)
 end
 
-# The code below is adapted from Dahua Lin's blog post here: http://julialang.org/blog/2013/09/fast-numeric/
+# The function below is adapted from Dahua Lin's blog post here: http://julialang.org/blog/2013/09/fast-numeric/
 function vecdist(a1::Array{Float64, 2}, a2::Array{Float64, 2})
     m, n = size(a1)
     sa = _sqsum(a1)
@@ -25,36 +26,17 @@ function vecdist(a1::Array{Float64, 2}, a2::Array{Float64, 2})
     # or the other three variants according to tA (transpose A) and tB. Returns the updated C.
     gemm!('T', 'N', -2.0, a1, a2, 1.0, r)
     for i = 1:length(r)
-        r[i] = sqrt(r[i])
+        if r[i] < 0
+            if r[i] > -1e-9
+                r[i] = 0
+            else
+                error("Negative squared distance in vecdist")
+            end
+        else
+            r[i] = sqrt(r[i])
+        end
     end
     return(r)
-end
-
-
-function sample_w_rep(item::Vector, nsamps::Int64)
-    retval = nans(nsamps)
-    rr = 1:length(item)
-    for yy in 1:nsamps
-        retval[yy] = item[rand(rr)]
-    end
-    return retval
-end
-
-function processbootstrap(resvec::Vector{Any}; nreps::Int64=1000, lastx::Int64=10)
-    samptmp       = nans(Float64, length(resvec))
-    bootstrapmeds = nans(Float64, nreps)
-    
-    for xx in 1:nreps
-        for (index, item) in enumerate(resvec)
-            samptmp[index] = median(sample_w_rep(item, length(item)))
-        end
-        inds = find(!isnan(samptmp))
-        bootstrapmeds[xx] = median(samptmp[inds[(end-lastx):]]) 
-    end
-    resvec_final::Vector{Float64} = [median(xx) for xx in resvec]
-    inds_resvec = find(!isnan(resvec_final))
-    med_resvec = median(resvec_final[inds_resvec[(end-lastx):]])
-    return resvec_final, med_resvec, bootstrapmeds
 end
 
 
@@ -62,11 +44,6 @@ end
 function calc_dists(shadowmat::Array{Float64,2})
     return vecdist(shadowmat, shadowmat)
     #return sqrt(pairwise(SqEuclidean(), shadowmat))
-end
-
-
-function calc_perms(shadowmat::Array{Float64,2})
-    return [sortperm(shadowmat[:,xx]) for xx in 1:size(shadowmat,2)]
 end
 
 
@@ -93,78 +70,93 @@ function construct_shadow(vector::AbstractVector, E::Int64, tau_s::Int64=1)
 end
 #### End attractor reconstruction and distance calculation functions
 
-
-function cor_w(x::AbstractVector, y::AbstractVector, weights::AbstractVector)
-    w_sum = sum(weights)
-    m_x     = dot(x, weights)/w_sum
-    m_y     = dot(y, weights)/w_sum
-    difs_x  = x-m_x
-    difs_y  = y-m_y
-    var_x   = dot(difs_x, difs_x)/w_sum
-    var_y   = dot(difs_y, difs_y)/w_sum
-    cov_x_y = dot(difs_x, difs_y)/w_sum
-    cor_x_y = cov_x_y/sqrt(var_x*var_y)
-    return cor_x_y
-end
-
-
-function processpredvals(predvals::Array{Float64,2}, targvals::Vector{Float64}, min_distances::Array{Float64,2},
-    nobs::Int64, lib_start::Int64, lib_size::Int64, npred::Int64, pred_start_min::Int64; bootstrap=false)
-    
-    if bootstrap
-        nanval = nans(1)
-    else
-        nanval = NaN
-    end
+function processpredvals_simple(predvals::Array{Float64,2}, targvals::Vector{Float64})
+    nanval = NaN
 
     if all(isnan(predvals))
         println("All predvals were NaN in process predvals")
         return nanval
     end
-    rhos         = nans(Float64, size(predvals,2))
-    loopedstarts = lib_start:(nobs-lib_size)
+    rhos = nans(Float64, size(predvals,2))
     
     for xx in 1:size(predvals,2)
-        ll = loopedstarts[xx]
-        predstart, predstop = getpredstartstop(nobs, ll, lib_size, npred, pred_start_min)
-        touse = !isnan(predvals[:,xx]) & !isnan(targvals[predstart:predstop])
+        touse = !isnan(predvals[:,xx]) & !isnan(targvals)
         
         if sum(touse) < 10
             rhos[xx] = NaN
             println("Not enough predvals present for lib size of $lib_size !")
             println("$(predvals[:,xx])")
         else
-            rhos[xx] = cor(predvals[touse,xx], targvals[predstart:predstop][touse])
+            rhos[xx] = cor(predvals[touse,xx], targvals[touse])
             if isnan(rhos[xx])
                 warn("in process predvals, why is rho nan?")
             end
         end
     end
+    
+    
+    
+
 
     toret = !isnan(rhos)
     if sum(toret) > 0
-        if bootstrap
-            return rhos[toret]
-        else
-            return median(rhos[toret])
-        end
+        return median(rhos[toret])
     else
         println("no non-nan values")
         return nanval
     end
+
 end
+
+# function processpredvals(predvals::Array{Float64,2}, targvals::Vector{Float64}, min_distances::Array{Float64,2},
+#     nobs::Int64, lib_start::Int64, lib_size::Int64, npred::Int64, pred_start_min::Int64)
+    
+#     nanval = NaN
+
+#     if all(isnan(predvals))
+#         println("All predvals were NaN in process predvals")
+#         return nanval
+#     end
+#     rhos         = nans(Float64, size(predvals,2))
+#     loopedstarts = lib_start:(nobs-lib_size)
+    
+#     for xx in 1:size(predvals,2)
+#         ll = loopedstarts[xx]
+#         predstart, predstop = getpredstartstop(nobs, ll, lib_size, npred, pred_start_min)
+#         touse = !isnan(predvals[:,xx]) & !isnan(targvals[predstart:predstop])
+        
+#         if sum(touse) < 10
+#             rhos[xx] = NaN
+#             println("Not enough predvals present for lib size of $lib_size !")
+#             println("$(predvals[:,xx])")
+#         else
+#             rhos[xx] = cor(predvals[touse,xx], targvals[predstart:predstop][touse])
+#             if isnan(rhos[xx])
+#                 warn("in process predvals, why is rho nan?")
+#             end
+#         end
+#     end
+
+#     toret = !isnan(rhos)
+#     if sum(toret) > 0
+#         return median(rhos[toret])
+#     else
+#         println("no non-nan values")
+#         return nanval
+#     end
+# end
 
 
 function weightfunc(distances::Array{Float64}; kernelargs...)
     w = [exp(-d) for d in distances]
-    return w/sum(w)
+    return w / sum(w)
 end
 
 
 function getdist!(dist_top::Vector{Float64}, inds_touse::AbstractVector{Int64}, num_neighbors::Int) 
-    if dist_top[1]==0
+    if dist_top[1] == 0
         for xx in 1:num_neighbors
-            if xx==1
+            if xx == 1
                 dist_top[xx] = 1
             else
                 dist_top[xx] = 1e200
@@ -182,11 +174,11 @@ end
 
 
 function getpredstartstop(nobs::Int, ll::Int, lib_size::Int, npred::Int, pred_start_min::Int64)
-    left::Int64     = iceil(npred / 2)
-    right::Int64    = npred - left - 1
+    left::Int64 = iceil(npred / 2)
+    right::Int64 = npred - left - 1
     midpoint::Int64 = iceil(ll + lib_size / 2)
-    lp::Int64       = midpoint - left
-    rp::Int64       = midpoint + right
+    lp::Int64 = midpoint - left
+    rp::Int64 = midpoint + right
 
     if lp < pred_start_min
         rp += (pred_start_min - lp)
@@ -194,7 +186,7 @@ function getpredstartstop(nobs::Int, ll::Int, lib_size::Int, npred::Int, pred_st
     end
 
     if rp > nobs
-        lp -= rp%nobs
+        lp -= rp % nobs
         rp  = nobs
     end
     
@@ -205,18 +197,6 @@ function getpredstartstop(nobs::Int, ll::Int, lib_size::Int, npred::Int, pred_st
     return lp, rp
 end
 
-function calcperm(source_dists::Array{Float64,2}, slice_inds::AbstractVector, topred::Int, nn::AbstractVector)
-    try
-        inds_touse = slice_inds[sortperm(source_dists[slice_inds, topred])[nn]]
-        return inds_touse
-    catch y
-        println(y)
-        println(slice_inds)
-        println(topred)
-        println(nn)
-        println(size(source_dists))
-    end
-end
 
 ### this function accounts for ~70% of algorithm run time
 function calcdistslice!(source_dists::Array{Float64, 2}, dist_top::Vector{Float64}, slice_inds::AbstractVector{Int64}, topred::Int64, nn::Range1{Int64})    
@@ -227,34 +207,80 @@ function calcdistslice!(source_dists::Array{Float64, 2}, dist_top::Vector{Float6
 
     # this line accounts for ~60% of algorithm run time
     inds_touse::Vector{Int64} = slice_inds[sortperm(source_dists[slice_inds, topred])[nn]] 
-
     for xx in nn
         dist_top[xx] = source_dists[inds_touse[xx], topred]
     end
-
     return inds_touse   
 end
 
 
-function getpredvals(source_manifold::Array{Float64,2}, source_dists::Array{Float64,2},
-    target_series::Vector{Float64}, lib_size::Int64,
-    lib_start::Int64, num_neighbors::Int64, tau_p::Int64, npred::Int64, pred_start_min::Int64)
-
-    nobs::Int64 = size(source_manifold,2)
-    
-    lib_stop::Int64 = nobs-lib_size-tau_p
-    nlib::Int64     = lib_stop-lib_start+1
+function prepgetpred(source_manifold, lib_start, lib_size, tau_p, npred, num_neighbors; nboots=0)
+    nobs::Int64 = size(source_manifold, 2)
+    lib_stop::Int64 = nobs - lib_size - tau_p
+    nlib::Int64 = lib_stop - lib_start + 1
     if nlib < 1
         println("No libs of this size in dataset. Lib_start is $lib_start, lib_stop is $lib_stop")
         return nans(1,1), nans(1,1)
     end
 
-    predvals      = nans(Float64, npred, nlib)
-    min_distances = nans(Float64, npred, nobs-lib_start-lib_size+1)
-    
-    lib_end::Int64  = lib_start+lib_size-1
+        if nboots > 0
+        min_distances = nans(Float64, npred, nboots)
+        predvals = nans(Float64, npred, nboots)
+        targvals = nans(Float64, npred)
+    else
+        # min_distances = nans(Float64, npred, nobs - lib_start - lib_size + 1)
+        min_distances = nans(Float64, npred, nlib)
+        predvals = nans(Float64, npred, nlib)
+        targvals = nans(Float64, npred)
+    end
+    lib_end::Int64 = lib_start + lib_size - 1
     dist_top = nans(Float64, num_neighbors)
-    nn       = 1:num_neighbors
+    return nobs, lib_stop, nlib, predvals, targvals, min_distances, lib_end, dist_top
+end
+
+
+function getpredvals_boot(source_manifold::Array{Float64,2}, source_dists::Array{Float64,2},
+     target_series::Vector{Float64}, lib_size::Int64,
+     lib_start::Int64, num_neighbors::Int64, 
+     tau_p::Int64, npred::Int64, pred_start_min::Int64, nboots::Int64)
+#     # Use bootstrap samples to generate libraries
+
+    nobs, lib_stop, nlib, predvals, targvals, min_distances, lib_end, dist_top = prepgetpred(source_manifold,
+                                                                                                                                lib_start, lib_size, 
+                                                                                                                                tau_p, npred, num_neighbors; 
+                                                                                                                                nboots=nboots)
+    # lib_stop is the last possible sliding window START index (stop of the start..confusing...)
+    # lib_end is the last in the current window
+    nn = 1:num_neighbors
+    for pp in 1:npred
+        topred = rand(pred_start_min:length(target_series))
+        targvals[pp] = target_series[topred]
+        for xx in 1: nboots  
+            slice_inds::Array{Int64, 1} = [rand(lib_start:lib_stop) for xx in 1:lib_size]
+            inds_touse = calcdistslice!(source_dists, dist_top, slice_inds, topred, nn)   
+            min_distances[pp, xx] = getdist!(dist_top, inds_touse, num_neighbors)
+            weights = weightfunc(dist_top)
+            predvals[pp, xx] = dot(weights, target_series[inds_touse + tau_p])   
+        end        
+    end
+    rhos = processpredvals_simple(predvals, targvals)
+    return predvals, min_distances, rhos
+end
+
+
+function getpredvals_sw(source_manifold::Array{Float64,2}, source_dists::Array{Float64,2},
+    target_series::Vector{Float64}, lib_size::Int64,
+    lib_start::Int64, num_neighbors::Int64, 
+    tau_p::Int64, npred::Int64, pred_start_min::Int64)
+    # Use a sliding window for your library. This is the traditional form of CCM
+
+    nobs, lib_stop, nlib, predvals, targvals, min_distances, lib_end, dist_top = prepgetpred(source_manifold,
+                                                                                                                                lib_start, lib_size, 
+                                                                                                                                tau_p, npred, num_neighbors)
+    # lib_stop is the last possible sliding window START index (stop of the start..confusing...)
+    # lib_end is the last in the current window
+
+    nn = 1:num_neighbors
     
     start_count::Int = 1
     for ll in lib_start:lib_stop
@@ -271,13 +297,14 @@ function getpredvals(source_manifold::Array{Float64,2}, source_dists::Array{Floa
             
             weights = weightfunc(dist_top)
             predvals[pred_count, start_count] = dot(weights, target_series[inds_touse+tau_p])
+            targvals[pred_count] = target_series[topred]
             pred_count += 1
         end
         start_count += 1
         lib_end += 1
     end
-
-    return predvals, min_distances
+    rhos = processpredvals_simple(predvals, targvals)
+    return predvals, min_distances, rhos
 end
 
 
@@ -286,23 +313,24 @@ function cross_mapping(source_manif_dict::Dict, source_dist_dict::Dict,
     nobs::Int64,
     libsizemin::Int64, libsizemax::Int64, E::Int64,
     tau_s::Int64, tau_p::Int64, npred::Int64, 
-    pred_start_min::Int64, num_neighbors, args...; lib_start::Int64=0, bootstrap=false)
+    pred_start_min::Int64, num_neighbors, args...; lib_start::Int64=0, nboots=0)
     
-    if bootstrap
-        res12 = Array(Any, libsizemax-libsizemin+1)
-    else
-        res12 = nans(Float64, libsizemax-libsizemin+1)
-    end
+
+    res12 = nans(Float64, libsizemax-libsizemin+1)
     count = 1
 
     nlibpluslibsize = nobs - tau_p - lib_start + 1
 
     for lib_size in libsizemin:libsizemax
         nlib = nlibpluslibsize - lib_size
-        predvals, min_distances = getpredvals(source_manif_dict[tau_s][E], source_dist_dict[tau_s][E], 
-                                target_series, 
-                                lib_size, lib_start, num_neighbors, tau_p, npred, pred_start_min)
-        res12[count] = processpredvals(predvals, target_series, min_distances, nobs, lib_start, lib_size, npred, pred_start_min, bootstrap=bootstrap)
+        if nboots > 0
+            predvals, min_distances, rhos = getpredvals_boot(source_manif_dict[tau_s][E], source_dist_dict[tau_s][E], 
+                                target_series, lib_size, lib_start, num_neighbors, tau_p, npred, pred_start_min, nboots)
+        else
+            predvals, min_distances, rhos = getpredvals_sw(source_manif_dict[tau_s][E], source_dist_dict[tau_s][E], 
+                                target_series, lib_size, lib_start, num_neighbors, tau_p, npred, pred_start_min)
+        end
+        res12[count] = rhos # processpredvals(predvals, target_series, min_distances, nobs, lib_start, lib_size, npred, pred_start_min)
 
         count += 1
     end
@@ -312,15 +340,17 @@ function cross_mapping(source_manif_dict::Dict, source_dist_dict::Dict,
     return res12
 end
 
+
 function calclibstart(shadowmat_dict::Dict, E::Int64, tau_s::Int64)
     nanrows::Array{Bool, 1} = [in(NaN, shadowmat_dict[tau_s][E][:,xx]) for xx in 1:size(shadowmat_dict[tau_s][E],2)]
     return (maximum(find(nanrows)) + 1)
 end
 
+
 function calcCCM(var1::AbstractVector, var2::AbstractVector,
     shadowmat_dict::Dict, distmat_dict::Dict, libsizemin::Int64, libsizemax::Int64,
     E::Int64, tau_s::Int64, tau_p::Int64, npred::Int64, pred_start::Int64; 
-    lib_start::Int64=0, b_offset::Int64=1, quick=false, nlag=10, bootstrap=false)
+    lib_start::Int64=0, b_offset::Int64=1, quick=false, nlag=10, nboots=0)
 
     nobs = length(var1)
     num_neighbors = E + b_offset
@@ -350,7 +380,7 @@ function calcCCM(var1::AbstractVector, var2::AbstractVector,
     end
     ###################
     res12 = cross_mapping(shadowmat_dict, distmat_dict, var2, nobs, libsizemin, libsizemax, E,
-                            tau_s, tau_p, npred, pred_start, num_neighbors; lib_start = lib_start, bootstrap=bootstrap)
+                            tau_s, tau_p, npred, pred_start, num_neighbors; lib_start = lib_start, nboots=nboots)
 
     return libsizemin:libsizemax, res12
 end
@@ -359,7 +389,7 @@ end
 function optandcalcCCM(vec1::AbstractVector, vec2::AbstractVector, 
     libsizemin::Int64, libsizemax::Int64, E_vals::AbstractVector,  
     tau_s_vals::AbstractVector, tau_p_vals::AbstractVector, npred::Int64, 
-    pred_start::Int64; nreps=5, b_offset=1, bootstrap=false, bootstrap_reps=1000)
+    pred_start::Int64; nreps=5, b_offset=1, nboots=0)
     """
     vec1: Time series 1
     vec2: Time series 2
@@ -378,17 +408,19 @@ function optandcalcCCM(vec1::AbstractVector, vec2::AbstractVector,
     shadowmat_dict_vec2, distmat_dict_vec2 = precalc_manif_dists(E_vals, tau_s_vals, vec2)
 
     println("CoordDescentOpt opt1")
-    res12 = CoordDescentOpt(vec1, vec2, shadowmat_dict_vec1, distmat_dict_vec1, libsizemin, libsizemax, E_vals, tau_s_vals, tau_p_vals, npred, pred_start; nreps=nreps)
+    res12 = CoordDescentOpt(vec1, vec2, shadowmat_dict_vec1, distmat_dict_vec1, libsizemin, 
+                                                libsizemax, E_vals, tau_s_vals, tau_p_vals, npred, pred_start; nreps=nreps, nboots=nboots)
     println("CoordDescentOpt opt2")
-    res21 = CoordDescentOpt(vec2, vec1, shadowmat_dict_vec2, distmat_dict_vec2, libsizemin, libsizemax, E_vals, tau_s_vals, tau_p_vals, npred, pred_start; nreps=nreps)
+    res21 = CoordDescentOpt(vec2, vec1, shadowmat_dict_vec2, distmat_dict_vec2, libsizemin, 
+                                                libsizemax, E_vals, tau_s_vals, tau_p_vals, npred, pred_start; nreps=nreps, nboots=nboots)
     libsizemin_12 = max(res12["E"]+b_offset+1,10)
     libsizemin_21 = max(res21["E"]+b_offset+1,10)
     println("starting calcCCM1")
     librange12, yval_12 = calcCCM(vec1, vec2, shadowmat_dict_vec1, distmat_dict_vec1, libsizemin_12, libsizemax, 
-                            res12["E"], res12["tau_s"], res12["tau_p"], npred, pred_start; bootstrap=bootstrap)
+                            res12["E"], res12["tau_s"], res12["tau_p"], npred, pred_start; nboots=nboots)
     println("starting calcCCM2")
     librange21, yval_21 = calcCCM(vec2, vec1, shadowmat_dict_vec2, distmat_dict_vec2, libsizemin_21, libsizemax, 
-                            res21["E"], res21["tau_s"], res21["tau_p"], npred, pred_start; bootstrap=bootstrap)
+                            res21["E"], res21["tau_s"], res21["tau_p"], npred, pred_start; nboots=nboots)
 
     return (librange12, yval_12), (librange21, yval_21)
 end
@@ -399,14 +431,14 @@ end
 function CoordDescentOpt(source_series::Vector{Float64}, target_series::Vector{Float64}, shadowmat_dict::Dict, distmat_dict::Dict,
     libsizemin::Int64, libsizemax::Int64,
     E_vals::AbstractVector{Int64}, tau_s_vals::AbstractVector{Int64},
-    tau_p_vals::AbstractVector{Int64}, npred::Int64, pred_start::Int64; nreps = 5)
+    tau_p_vals::AbstractVector{Int64}, npred::Int64, pred_start::Int64; nreps = 5, nboots=0)
     bestres=Dict()
     count = 0
     for xx in 1:nreps
         res12, evalcount = _CoordDescentOpt(source_series, target_series, shadowmat_dict, distmat_dict,
                     libsizemin, libsizemax,
                     E_vals, tau_s_vals,
-                    tau_p_vals, npred, pred_start)
+                    tau_p_vals, npred, pred_start; nboots=nboots)
         count += evalcount
         if xx == 1
             bestres = res12
@@ -422,7 +454,7 @@ end
 function _CoordDescentOpt(source_series::Vector{Float64}, target_series::Vector{Float64}, shadowmat_dict::Dict, distmat_dict::Dict,
     libsizemin::Int64, libsizemax::Int64,
     E_vals::AbstractVector{Int64}, tau_s_vals::AbstractVector{Int64},
-    tau_p_vals::AbstractVector{Int64}, npred::Int64, pred_start::Int64)
+    tau_p_vals::AbstractVector{Int64}, npred::Int64, pred_start::Int64; nboots=0)
 
     E_vals     = convert(Vector{Int64}, E_vals)
     tau_s_vals = convert(Vector{Int64}, tau_s_vals)
@@ -444,7 +476,8 @@ function _CoordDescentOpt(source_series::Vector{Float64}, target_series::Vector{
         var_count = 0
         println("========Starting iteration $iternum===========")
         for var in shuffle(toopt)
-            nochange_bool, evalcount = optvar(source_series, target_series, shadowmat_dict, distmat_dict, all_vals, current_vals, best_vals, var, libsizemax, npred, pred_start)
+            nochange_bool, evalcount = optvar(source_series, target_series, shadowmat_dict, distmat_dict, 
+                                                                    all_vals, current_vals, best_vals, var, libsizemax, npred, pred_start; nboots=nboots)
             count += evalcount
             current_vals[var] = best_vals[var][1] # make sure optimization of next variable is done with best value of this one
 
@@ -480,7 +513,7 @@ end
 
 function optvar(source_series::AbstractVector, target_series::AbstractVector, shadowmat_dict::Dict, 
     distmat_dict::Dict, all_vals::Dict, current_vals::Dict, 
-    best_vals::Dict, var::ASCIIString, libsizemax::Int64, npred::Int64, pred_start::Int64; nlag::Int64=10, b_offset=1)
+    best_vals::Dict, var::ASCIIString, libsizemax::Int64, npred::Int64, pred_start::Int64; nlag::Int64=10, b_offset=1, nboots=0)
     
     
     if length(all_vals[var]) < 2
@@ -496,7 +529,7 @@ function optvar(source_series::AbstractVector, target_series::AbstractVector, sh
         libsizemin = max(current_vals["E"] + b_offset + 1, libsizemax-nlag)
         librange, res12 = calcCCM(source_series, target_series, shadowmat_dict, 
                                 distmat_dict,libsizemin, libsizemax, current_vals["E"], 
-                                current_vals["tau_s"], current_vals["tau_p"], npred, pred_start; quick=true)
+                                current_vals["tau_s"], current_vals["tau_p"], npred, pred_start; quick=true, nboots=nboots)
         rho = getrho(res12)
         if rho > best_vals["rho"] # update best value if you have an improvement
             best_vals[var] = val
@@ -567,11 +600,11 @@ end
 
 
 function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, 
-    libsizemin::Int64, libsizemax::Int64, Evals::AbstractVector,  
+    libsizemin::Int64, libsizemax::Int64, E_vals::AbstractVector,  
     tau_s_vals::AbstractVector, tau_p_vals::AbstractVector, npred::Int64, 
     pred_start::Int64, var1name::ASCIIString, var2name::ASCIIString; 
     nreps=5, b_offset=1, ncols=28, left_E=false, left_tau_p=false, right_E=false, right_tau_p=false, lagunit=1, unit=false,
-    imfont="medium")
+    imfont="medium", nboots=0)
 
     @pyimport matplotlib.pyplot as plt
     println("Calculating manifolds")
@@ -580,10 +613,10 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector,
 
     println("\nCoordDescent opt1")
     res12 = CoordDescentOpt(vec1, vec2, shadowmat_dict_vec1, distmat_dict_vec1, libsizemin, libsizemax, 
-                        E_vals, tau_s_vals, tau_p_vals, npred, pred_start; nreps=nreps)
+                        E_vals, tau_s_vals, tau_p_vals, npred, pred_start; nreps=nreps, nboots=nboots)
     println("\nCoordDescent opt2")
     res21 = CoordDescentOpt(vec2, vec1, shadowmat_dict_vec2, distmat_dict_vec2, libsizemin, libsizemax, 
-                        E_vals, tau_s_vals, tau_p_vals, npred, pred_start; nreps=nreps)
+                        E_vals, tau_s_vals, tau_p_vals, npred, pred_start; nreps=nreps, nboots=nboots)
     
     libsizemin_12 = max(res12["E"] + b_offset + 1, 10)
     libsizemin_21 = max(res21["E"] + b_offset + 1, 10)
@@ -607,7 +640,6 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector,
     stats2 = "($(res21["E"]), $(res21["tau_p"] * lagunit), $(res21["tau_s"]))"
 
 
-    
     ax1 = plt.subplot2grid((2,ncols), (0,0), rowspan=2, colspan=ifloor(ncols/3))
     ax1[:plot](librange12, yval_12, label="$label1\n$stats1")
     ax1[:plot](librange21, yval_21, label="$label2\n$stats2")
