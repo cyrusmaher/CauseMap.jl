@@ -639,7 +639,7 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector,
     stats1 = "($(res12["E"]), $(res12["tau_p"] * lagunit), $(res12["tau_s"]))"
     stats2 = "($(res21["E"]), $(res21["tau_p"] * lagunit), $(res21["tau_s"]))"
 
-
+    tau_p = int(tau_p)
     ax1 = plt.subplot2grid((2,ncols), (0,0), rowspan=2, colspan=ifloor(ncols/3))
     ax1[:plot](librange12, yval_12, label="$label1\n$stats1")
     ax1[:plot](librange21, yval_21, label="$label2\n$stats2")
