@@ -17,9 +17,7 @@ About CauseMap
     </table>
     </p>
 
-.. _intro:
-Introduction
--------------
+
 Convergent cross mapping (CCM) provides a model-free approach to detecting dependencies
 and establishing causality in complex non-linear systems, even in the presence of feedback loops and
 unmeasured confounding [1]_. CCM derives this power from
@@ -28,11 +26,12 @@ state-space reconstruction (SSR). In practice, this analysis
 typically requires 25 or more time points, measured with sufficient density
 to capture system dynamics.
 
+|br|
 
 How CauseMap works
 ------------------
 To get a feel for the algorithm and the intuition behind it, we highly recommend
-the following two videos from `George Sugihara <http://scrippsscholars.ucsd.edu/gsugihara/biocv>`_'s group at UCSD.
+the following two videos from `George Sugihara <http://scrippsscholars.ucsd.edu/gsugihara/biocv>`_'s group at UCSD:
 
 
 Time series as projections of full system dynamics
@@ -98,3 +97,7 @@ Manifold reconstruction
 
 
 .. [1] Sugihara,G. *et al.* (2012) Detecting causality in complex ecosystems. *Science*, 338, 496–500.
+
+.. |br| raw:: html
+
+   <br />
