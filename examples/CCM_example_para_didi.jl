@@ -10,7 +10,7 @@ E_vals     = 2:10  # range to test of system dimensionality
 tau_s_vals = 1:1 # range for lag length for manifold reconstruction
 tau_p_vals = 0:15  # range to test for time lag of causal effect
 
-ds   = readdlm("vr.raw_fixed.txt", '\t', Float64, has_header=false)  # read in data
+ds   = readdlm("vr.raw_fixed.txt", '\t', Float64, header=false)  # read in data
 para = ds[:, 2]
 didi = ds[:, 3]
 
