@@ -65,5 +65,36 @@ the latest version of our `manuscript <https://github.com/cyrusmaher/CauseMap.jl
 
 |
 
+.. _params:
+
+Model Parameters
+-----------------
+Library size
+++++++++++++
+Libraries are the collection of data points used for cross mapping.
+Convergent cross mapping gets its name because, if a relationship is truly causal,
+predictive skill should converge with library size (read: amount of data used).
+Library-relevant parameters are:
+
+- ``libsizemin``: The minimum library size.
+- ``libsizemax``: The maximum library size. For long time series, for example, you may not want to use the largest possible library.
+- ``nboots``: This allows you to switch from the traditional "slide window" approach to bootstrap library selection. As an example, ``nboots=20`` will randomly select 20 libraries at each library size.
+
+Note: the bootstrapping approach generally performs better than
+sliding windows because it isn't as sensitive to secular trends.
+
+**In future releases, this will be the default.**
+
+Predicted data
++++++++++++++++
+- ``predstart``: The first point to be predicted from the target time series.
+- ``npred``: The number of points to be predicted by each library.
+- ``tau_p``: The assumed time lag for the causal effect.
+
+Manifold reconstruction
+++++++++++++++++++++++++
+- ``E_vals``: This sets the range of manifold dimensions to test. The higher dimensional reconstructions are necessary for causal systems with a larger number of components.
+- ``tau_s``: The time lag to use for manifold reconstruction. One is customary, but data may be thinned if autocorrelation is strong.
+
 
 .. [1] Sugihara,G. *et al.* (2012) Detecting causality in complex ecosystems. *Science*, 338, 496–500.

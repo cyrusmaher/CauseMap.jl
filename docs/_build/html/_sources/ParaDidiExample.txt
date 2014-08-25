@@ -15,8 +15,16 @@ To see these guys in action, check out a couple minutes of this video:
 
 Predator-prey dynamics and manifold reconstruction
 ++++++++++++++++++++++++++++++++++++++++++++++++++
-Below we provide plots of the time series of Paramecium and Didinium, as well as their manifold reconstructions alongside the full system manifold.
+Below we provide plots of the time series of Paramecium and Didinium,
+as well as their manifold reconstructions alongside the full system manifold.
+Specifically:
+
+- *The first two panels are the time series for the predator-prey system.*
+- *The third and forth panels show the manifold reconstructions from each time series.*
+- *The fifth panel gives a view of the full manifold.*
+
 
 Note that corresponding points can be simultaneously highlighted across plots using the ``select`` tool.
+
 
 :download:`Here are the plots! <ParaDidiExample_plot.html>`.

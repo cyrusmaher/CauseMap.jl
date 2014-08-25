@@ -1,0 +1,17 @@
+.. image:: 9415588312_d8e85f0eb6_o.jpg 
+	:align: right
+	:scale: 20 %
+	:target: http://www.chaoscope.org/gallery.htm
+
+
+
+
+Welcome to CauseMap's documentation!
+==================================
+
+
+Contents:
+==========
+.. toctree::
+   :maxdepth: 3
+   CauseMap
