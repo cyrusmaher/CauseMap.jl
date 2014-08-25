@@ -68,7 +68,7 @@ the latest version of our `manuscript <https://github.com/cyrusmaher/CauseMap.jl
 .. _params:
 
 Model Parameters
------------------
+----------------
 Library size
 ++++++++++++
 Libraries are the collection of data points used for cross mapping.
