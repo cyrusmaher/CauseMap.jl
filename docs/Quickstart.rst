@@ -20,7 +20,7 @@ Quickstart
 Installation
 ------------
 CauseMap is an official Julia package. |br|
-To install, the user can simply type ``Pkg.add("CauseMap")`` from the Julia REPL.
+To install, the user can simply type ``Pkg.add("CauseMap")`` from the Julia REPL. |br| 
 CauseMap can then be imported with ``using CauseMap``.
 
 
@@ -42,7 +42,7 @@ Result
 ++++++
 This produces the plot below:
 
-.. figure:: ../images/ParaDidi_optim.jpeg
+.. figure:: _images/ParaDidi_optim.jpeg
    :height: 250px
 
    In the left panel, we see convergence for both causal directions, suggesting a bi-directional causal effect.
