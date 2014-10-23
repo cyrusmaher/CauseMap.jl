@@ -4,7 +4,6 @@ libsizemin = 8   # minimum library size
 libsizemax = 58 # maximum library size
 pred_start = 13 # first point to predict
 npred      = 60  # number of time series points to predict (larger is better)
-nboots = 30  # use bootstrap libraries instead of sliding windows (reduces effect of secular trends)
 
 E_vals     = 2:10  # range to test of system dimensionality
 tau_s_vals = 1:1 # range for lag length for manifold reconstruction
@@ -15,7 +14,13 @@ para = ds[:, 2]
 didi = ds[:, 3]
 
 # run analysis
-makeoptimizationplots(para, didi, libsizemin, libsizemax, E_vals, 
-			tau_s_vals, tau_p_vals, npred, pred_start,
-			"Para.", "Didi."; nreps=1, left_E=2, left_tau_p=0, 
-                                    right_E=7, right_tau_p=12, lagunit=.5, unit="days", nboots=nboots)
+
+
+makeoptimizationplots(para, didi,  
+                                        E_vals, tau_s_vals, tau_p_vals, 
+                                        "Para.", "Didi."; 
+                                        nreps=1, left_E=2, left_tau_p=0, 
+                                        right_E=7, right_tau_p=12, lagunit=.5, unit="days", 
+                                        libsizemin=libsizemin, libsizemax=libsizemax,
+                                        npred=npred, pred_start=pred_start
+                                    )
