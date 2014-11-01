@@ -14,7 +14,13 @@ para = ds[:, 2]
 didi = ds[:, 3]
 
 # run analysis
-makeoptimizationplots(para, didi, libsizemin, libsizemax, E_vals, 
-			tau_s_vals, tau_p_vals, npred, pred_start,
-			"Para.", "Didi."; nreps=1, left_E=2, left_tau_p=0, 
-                                    right_E=7, right_tau_p=12, lagunit=.5, unit="days")
+
+
+makeoptimizationplots(para, didi,  
+                                        E_vals, tau_s_vals, tau_p_vals, 
+                                        "Para.", "Didi."; 
+                                        nreps=1, left_E=2, left_tau_p=0, 
+                                        right_E=7, right_tau_p=12, lagunit=.5, unit="days", 
+                                        libsizemin=libsizemin, libsizemax=libsizemax,
+                                        npred=npred, pred_start=pred_start
+                                    )
