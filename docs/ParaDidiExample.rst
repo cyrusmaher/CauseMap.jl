@@ -5,8 +5,8 @@ Paramecium and Didinium
 -----------------------
 This is a well-studied, unicellular predator-prey system with interesting non-linear dynamics.
 
-A cool video!
-+++++++++++++
+Unicellular predation in action
++++++++++++++++++++
 To see these guys in action, check out a couple minutes of this video:
 
 .. raw:: html
