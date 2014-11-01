@@ -173,7 +173,7 @@ CauseMap can then be imported with <tt class="docutils literal"><span class="pre
 </div>
 <div class="section" id="example-script">
 <h2>Example script<a class="headerlink" href="#example-script" title="Permalink to this headline">¶</a></h2>
-<p>CauseMap is designed for rapid analysis. After setting a few tuning parameters (see <a class="reference internal" href="AboutCauseMap.html#params"><em>Model Parameters</em></a>),
+<p>CauseMap is designed for rapid analysis. After setting a few tuning parameters (see <a class="reference internal" href="docs/AboutCauseMap.html#params"><em>Model Parameters</em></a>),
 the user is ready to analyze and plot the results.</p>
 <div class="highlight-julia"><div class="highlight"><pre><span class="k">using</span> <span class="n">CauseMap</span>
 
@@ -187,10 +187,8 @@ the user is ready to analyze and plot the results.</p>
 <span class="n">tau_p_vals</span> <span class="o">=</span> <span class="mi">0</span><span class="p">:</span><span class="mi">15</span>  <span class="c"># range to test for time lag of causal effect</span>
 </pre></div>
 </div>
-<div class="highlight-julia"><div class="highlight"><pre><span class="n">makeoptimizationplots</span><span class="p">(</span><span class="n">para</span><span class="p">,</span> <span class="n">didi</span><span class="p">,</span> <span class="n">libsizemin</span><span class="p">,</span> <span class="n">libsizemax</span><span class="p">,</span> <span class="n">E_vals</span><span class="p">,</span> 
-			<span class="n">tau_s_vals</span><span class="p">,</span> <span class="n">tau_p_vals</span><span class="p">,</span> <span class="n">npred</span><span class="p">,</span> <span class="n">pred_start</span><span class="p">,</span>
-			<span class="s">&quot;Para.&quot;</span><span class="p">,</span> <span class="s">&quot;Didi.&quot;</span><span class="p">;</span> <span class="n">nreps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_E</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">left_tau_p</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
-                                    <span class="n">right_E</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">right_tau_p</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">lagunit</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">&quot;days&quot;</span><span class="p">)</span>
+<div class="highlight-julia"><div class="highlight"><pre><span class="n">makeoptimizationplots</span><span class="p">(</span><span class="n">para</span><span class="p">,</span> <span class="n">didi</span><span class="p">,</span>  
+                                        <span class="n">E_vals</span><span class="p">,</span> <span class="n">tau_s_vals</span><span class="p">,</span> <span class="n">tau_p_vals</span><span class="p">,</span> 
 </pre></div>
 </div>
 <div class="section" id="result">
