@@ -31,11 +31,11 @@ the user is ready to analyze and plot the results.
 
 .. literalinclude:: ../examples/CCM_example_para_didi.jl
    :language: julia
-   :lines: 1-10
+   :lines: 1-11
 
 .. literalinclude:: ../examples/CCM_example_para_didi.jl
    :language: julia
-   :lines: 17-20
+   :lines: 19-23
 
 Result
 ++++++
