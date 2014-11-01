@@ -27,4 +27,4 @@ Specifically:
 Note that corresponding points can be simultaneously highlighted across plots using the ``select`` tool.
 
 
-:download:`Here are the plots! <ParaDidiExample_plot1.html>`.
+:download:`Here are the plots! <ParaDidiExample_plot.html>`.
