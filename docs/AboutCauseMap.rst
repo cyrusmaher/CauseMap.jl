@@ -93,7 +93,7 @@ Predicted data
 Manifold reconstruction
 ++++++++++++++++++++++++
 - ``E_vals``: This sets the range of manifold dimensions to test. The higher dimensional reconstructions are necessary for causal systems with a larger number of components.
-- ``tau_s``: The time lag to use for manifold reconstruction. One is customary, but data may be thinned if autocorrelation is strong.
+- ``tau_s``: The time lag to use for manifold reconstruction. A value of one is customary, but data may be thinned if autocorrelation is strong.
 
 
 .. [1] Sugihara,G. *et al.* (2012) Detecting causality in complex ecosystems. *Science*, 338, 496–500.
