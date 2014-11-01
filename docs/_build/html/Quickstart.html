@@ -177,22 +177,22 @@ CauseMap can then be imported with <tt class="docutils literal"><span class="pre
 the user is ready to analyze and plot the results.</p>
 <div class="highlight-julia"><div class="highlight"><pre><span class="k">using</span> <span class="n">CauseMap</span>
 
+<span class="n">E_vals</span>     <span class="o">=</span> <span class="mi">2</span><span class="p">:</span><span class="mi">10</span>  <span class="c"># range to test of system dimensionality</span>
+<span class="n">tau_s_vals</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span> <span class="c"># range for lag length for manifold reconstruction</span>
+<span class="n">tau_p_vals</span> <span class="o">=</span> <span class="mi">0</span><span class="p">:</span><span class="mi">15</span>  <span class="c"># range to test for time lag of causal effect</span>
+
 <span class="c">### You can specify these if you want to finer control</span>
 <span class="c"># libsizemin = 8   # minimum library size</span>
 <span class="c"># libsizemax = 58 # maximum library size</span>
 <span class="c"># pred_start = 13 # first point to predict</span>
 <span class="c"># npred      = 60  # number of time series points to predict (larger is better)</span>
-
-<span class="n">E_vals</span>     <span class="o">=</span> <span class="mi">2</span><span class="p">:</span><span class="mi">10</span>  <span class="c"># range to test of system dimensionality</span>
-<span class="n">tau_s_vals</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span> <span class="c"># range for lag length for manifold reconstruction</span>
-<span class="n">tau_p_vals</span> <span class="o">=</span> <span class="mi">0</span><span class="p">:</span><span class="mi">15</span>  <span class="c"># range to test for time lag of causal effect</span>
 </pre></div>
 </div>
 <div class="highlight-julia"><div class="highlight"><pre><span class="n">makeoptimizationplots</span><span class="p">(</span><span class="n">para</span><span class="p">,</span> <span class="n">didi</span><span class="p">,</span>  <span class="n">E_vals</span><span class="p">,</span> <span class="n">tau_s_vals</span><span class="p">,</span> <span class="n">tau_p_vals</span><span class="p">,</span> <span class="s">&quot;Para.&quot;</span><span class="p">,</span> <span class="s">&quot;Didi.&quot;</span><span class="p">)</span>  <span class="c"># make diagnostic plot</span>
- <span class="c"># tune output by adding args              # ; nreps=1, left_E=2, left_tau_p=0,  </span>
-                                                            <span class="c"># right_E=7, right_tau_p=12, lagunit=.5, unit=&quot;days&quot;, </span>
-                                                            <span class="c"># libsizemin=libsizemin, libsizemax=libsizemax,</span>
-                                                            <span class="c"># npred=npred, pred_start=pred_start)</span>
+ <span class="c"># tune output by adding args                   # ; nreps=1, left_E=2, left_tau_p=0,  </span>
+                                                        <span class="c"># right_E=7, right_tau_p=12, lagunit=.5, unit=&quot;days&quot;, </span>
+                                                        <span class="c"># libsizemin=libsizemin, libsizemax=libsizemax,</span>
+                                                        <span class="c"># npred=npred, pred_start=pred_start)</span>
 </pre></div>
 </div>
 <div class="section" id="result">
