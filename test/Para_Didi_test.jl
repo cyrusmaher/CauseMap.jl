@@ -12,12 +12,12 @@ function getvectors(vec1::AbstractVector, vec2::AbstractVector, libsizemin::Int6
                                                         shadowmat_dict_vec1, distmat_dict_vec1, 
                                                         E, tau_s, tau_p; 
                                                         lib_start=lib_start, libsizemin=libsizemin, libsizemax=libsizemax,
-                                                        npred=npred, pred_start=pred_start)
+                                                        npred=npred, pred_start=pred_start, pred_rand=false)
     librange21, yval_21 = calcCCM(vec2, vec1, 
                                                         shadowmat_dict_vec2, distmat_dict_vec2, 
                                                         E, tau_s, tau_p; 
                                                         lib_start=lib_start, libsizemin=libsizemin, libsizemax=libsizemax,
-                                                        npred=npred, pred_start=pred_start)
+                                                        npred=npred, pred_start=pred_start, pred_rand=false)
     return yval_12, yval_21
 end
 

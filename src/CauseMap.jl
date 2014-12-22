@@ -6,7 +6,18 @@ include("plotting.jl")
 include("coord_descent_tuning.jl")
 include("calc_manifolds.jl")
 
-export makesingleplot, makeoptimizationplots, optandcalcCCM, precalc_manif_dists, calcCCM
+export makesingleplot, makeoptimizationplots, optandcalcCCM, precalc_manif_dists, calcCCM, load_example_data
+
+function load_example_data(dsname)
+    if dsname == "ParaDidi"
+        ds   = readdlm(Pkg.dir("CauseMap") * "/examples/vr.raw_fixed.txt", '\t', Float64, header=false)  # read in data
+        para = ds[:, 2]
+        didi = ds[:, 3]
+        return para, didi
+    else
+        throw(ArgumentError("Did not recognize $dsname dataset"))
+    end
+end
 
 
 function processpredvals_simple(predvals::Array{Float64,2}, targvals::Vector{Float64}, lib_size::Int64)

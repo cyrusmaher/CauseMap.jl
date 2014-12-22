@@ -5,6 +5,7 @@ libsizemax = 58 # maximum library size
 pred_start = 13 # first point to predict
 npred      = 60  # number of time series points to predict (larger is better)
 
+
 E_vals     = 2:10  # range to test of system dimensionality
 tau_s_vals = 1:1 # range for lag length for manifold reconstruction
 tau_p_vals = 0:15  # range to test for time lag of causal effect
@@ -19,8 +20,8 @@ didi = ds[:, 3]
 makeoptimizationplots(para, didi,  
                                         E_vals, tau_s_vals, tau_p_vals, 
                                         "Para.", "Didi."; 
-                                        nreps=1, left_E=2, left_tau_p=0, 
-                                        right_E=7, right_tau_p=12, lagunit=.5, unit="days", 
-                                        libsizemin=libsizemin, libsizemax=libsizemax,
-                                        npred=npred, pred_start=pred_start
+                                        nreps=10, left_E=2, left_tau_p=0, 
+                                        right_E=7, right_tau_p=12, lagunit=.5, unit="days",
+                                        #libsizemin=libsizemin, libsizemax=libsizemax,
+                                        npred=npred, pred_start=pred_start, show_tau_s=false
                                     )

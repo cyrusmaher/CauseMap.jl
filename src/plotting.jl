@@ -40,7 +40,7 @@ function makesingleplot(vec1::AbstractVector, vec2::AbstractVector,
     plt.plot(librange12, yval_12, label = "$var2name influences $var1name?")
     plt.plot(librange21, yval_21, label = "$var1name influences $var2name?")
     plt.xlabel("L")
-    plt.ylabel("\$\\rho_{cm}\$")
+    plt.ylabel("\$\\rho_{ccm}\$")
     plt.legend(loc="lower right")
     ax = plt.gca()
     ax[:xaxis][:set_ticks_position]("bottom")
@@ -66,7 +66,7 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
                                                     right_E=false, right_tau_p=false, lagunit=1, unit=false, 
                                                     imfont="medium", nboots=0, legend=true, 
                                                     lib_start=1, plot=true, libsizemin=0, libsizemax=0, 
-                                                    pred_start=0, npred=0)
+                                                    pred_start=0, npred=0, show_tau_s=true)
         
     println("Calculating manifolds")
     shadowmat_dict_vec1, distmat_dict_vec1 = precalc_manif_dists(E_vals, tau_s_vals, vec1)
@@ -107,14 +107,21 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
     
     @pyimport matplotlib.pyplot as plt
     fig = plt.figure()
-    label1 = "$(ucfirst(var2name)) influences $var1name?"
-    label2 = "$(ucfirst(var1name)) influences $var2name?"
+    label1 = "\n$(ucfirst(var2name)) influences $var1name?"
+    label2 = "\n$(ucfirst(var1name)) influences $var2name?"
     
     rho1   = @sprintf("%.2f", res12["rho"])
     rho2   = @sprintf("%.2f", res21["rho"])
     
-    stats1 = "($(res12["E"]), $(int(res12["tau_p"] * lagunit)), $(res12["tau_s"]))"
-    stats2 = "($(res21["E"]), $(int(res21["tau_p"] * lagunit)), $(res21["tau_s"]))"
+    if show_tau_s
+        statsuff1 = "$(res12["tau_s"])"
+        statsuff2 = "$(res21["tau_s"])"
+    else
+        statsuff1 = ""
+        statsuff2 = ""
+    end
+    stats1 = "   E = $(res12["E"]), \$\\tau_{p}\$ = $(int(res12["tau_p"] * lagunit))" * statsuff1
+    stats2 = "   E = $(res21["E"]), \$\\tau_{p}\$ = $(int(res21["tau_p"] * lagunit))" * statsuff2
 
     ax1 = plt.subplot2grid((2,ncols), (0,0), rowspan=2, colspan=ifloor(ncols/3))
     
@@ -124,11 +131,11 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
     ax1[:yaxis][:set_ticks_position]("left")
     ax1[:xaxis][:set_ticks_position]("bottom")
 
-    ax1[:set_ylabel]("\$\\rho_{cm}\$", fontsize="x-large")
+    ax1[:set_ylabel]("\$\\rho_{ccm}\$", fontsize="x-large")
     ax1[:set_xlabel]("L", fontsize="large", labelpad=12)
     
     if legend == true
-        ax1[:legend](loc=4, fontsize="x-small", title ="(\$E\$, \$\\tau_p\$, \$\\tau_s\$)")
+        ax1[:legend](loc=4, fontsize="x-small")
     end
     
     mat12, Es12, taus12 = get_E_taupcurves(vec1, vec2, 
@@ -174,7 +181,7 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
     
     cbar = fig[:colorbar](imax21, cax=ax4, ticks=[vmin, vmax], format = "%.2f")
     cbar[:ax][:set_yticklabels]([llab, "\$1\$"], fontsize="large")
-    cbar[:set_label]("\$max\\ \\rho_{cm}\$", fontsize="large", labelpad=2)
+    cbar[:set_label]("\$max\\ \\rho_{ccm}\$", fontsize="large", labelpad=2)
     cbar[:ax][:get_yaxis]()[:labelpad]=0
     
     if plot
