@@ -11,9 +11,7 @@ tau_p_vals = 0:15  # range to test for time lag of causal effect
 # npred      = 60  # number of time series points to predict (larger is better)
 
 # read in data
-ds   = readdlm("vr.raw_fixed.txt", '\t', Float64, header=false)  # read in data
-para = ds[:, 2]
-didi = ds[:, 3]
+para, didi = load_example_data("ParaDidi")
 
 # run analysis
 makeoptimizationplots(para, didi,  E_vals, tau_s_vals, tau_p_vals, "Para.", "Didi.")  # make diagnostic plot
