@@ -173,7 +173,7 @@ CauseMap can then be imported with <tt class="docutils literal"><span class="pre
 </div>
 <div class="section" id="example-script">
 <h2>Example script<a class="headerlink" href="#example-script" title="Permalink to this headline">¶</a></h2>
-<p>CauseMap is designed for rapid analysis. After setting a few tuning parameters (see <a class="reference internal" href="AboutCauseMap.html#params"><em>Model Parameters</em></a>),
+<p>CauseMap is designed for rapid analysis. After setting a few tuning parameters (see <a class="reference internal" href="docs/AboutCauseMap.html#params"><em>Model Parameters</em></a>),
 the user is ready to analyze and plot the results.</p>
 <div class="highlight-julia"><div class="highlight"><pre><span class="k">using</span> <span class="n">CauseMap</span>
 
@@ -186,9 +186,12 @@ the user is ready to analyze and plot the results.</p>
 <span class="c"># libsizemax = 58 # maximum library size</span>
 <span class="c"># pred_start = 13 # first point to predict</span>
 <span class="c"># npred      = 60  # number of time series points to predict (larger is better)</span>
-</pre></div>
-</div>
-<div class="highlight-julia"><div class="highlight"><pre><span class="n">makeoptimizationplots</span><span class="p">(</span><span class="n">para</span><span class="p">,</span> <span class="n">didi</span><span class="p">,</span>  <span class="n">E_vals</span><span class="p">,</span> <span class="n">tau_s_vals</span><span class="p">,</span> <span class="n">tau_p_vals</span><span class="p">,</span> <span class="s">&quot;Para.&quot;</span><span class="p">,</span> <span class="s">&quot;Didi.&quot;</span><span class="p">)</span>  <span class="c"># make diagnostic plot</span>
+
+<span class="c"># read in data</span>
+<span class="n">para</span><span class="p">,</span> <span class="n">didi</span> <span class="o">=</span> <span class="n">load_example_data</span><span class="p">(</span><span class="s">&quot;ParaDidi&quot;</span><span class="p">)</span>
+
+<span class="c"># run analysis</span>
+<span class="n">makeoptimizationplots</span><span class="p">(</span><span class="n">para</span><span class="p">,</span> <span class="n">didi</span><span class="p">,</span>  <span class="n">E_vals</span><span class="p">,</span> <span class="n">tau_s_vals</span><span class="p">,</span> <span class="n">tau_p_vals</span><span class="p">,</span> <span class="s">&quot;Para.&quot;</span><span class="p">,</span> <span class="s">&quot;Didi.&quot;</span><span class="p">)</span>  <span class="c"># make diagnostic plot</span>
  <span class="c"># tune output by adding args                   # ; nreps=1, left_E=2, left_tau_p=0,  </span>
                                                         <span class="c"># right_E=7, right_tau_p=12, lagunit=.5, unit=&quot;days&quot;, </span>
                                                         <span class="c"># libsizemin=libsizemin, libsizemax=libsizemax,</span>
