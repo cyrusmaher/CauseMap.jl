@@ -101,6 +101,7 @@
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#example-script">Example script</a><ul>
 <li><a class="reference internal" href="#result">Result</a><ul>
+<li><a class="reference internal" href="#interpretation">Interpretation</a></li>
 <li><a class="reference internal" href="#source-data">Source data</a></li>
 </ul>
 </li>
@@ -202,10 +203,15 @@ the user is ready to analyze and plot the results.</p>
 <h3>Result<a class="headerlink" href="#result" title="Permalink to this headline">¶</a></h3>
 <p>This produces the plot below:</p>
 <div class="figure">
-<a class="reference internal image-reference" href="_images/ParaDidi_optim.jpeg"><img alt="_images/ParaDidi_optim.jpeg" src="_images/ParaDidi_optim.jpeg" style="height: 250px;" /></a>
-<p class="caption">In the left panel, we see convergence for both causal directions, suggesting a bi-directional causal effect.</p>
+<a class="reference internal image-reference" href="_images/ParaDidi_optim.jpeg"><img alt="_images/ParaDidi_optim.jpeg" src="_images/ParaDidi_optim.jpeg" style="height: 350px;" /></a>
 </div>
+<div class="section" id="interpretation">
+<h4>Interpretation<a class="headerlink" href="#interpretation" title="Permalink to this headline">¶</a></h4>
+<p>In the left panel, we see convergence for both causal directions. The interpretation of this result is that the causal relationship between P. aurelia and D. nasutum is bi-directional. That is, the number of predators influences the number of prey, and vice-versa.</p>
+<p>The right panels show the dependence of the max ρ<sub>ccm</sub> on E (the dimensionality of the reconstructed system), and the supposed time lag of the causal effect (τ<sub>p</sub>). Overall, the patterning of these heatmaps demonstrates that max ρ<sub>ccm</sub> has a reasonable dependence on causal parameters of interest. While the max ρccm is relatively insensitive to the assumed dimensionality, the best-performing τp values correspond to either immediate causal effects, or those delayed by five days.</p>
+<p>Note that τ<sub>p</sub>=5 corresponds to the principal frequency of the Paramecium aurelia and Didinium nasutum time series. This suggests that the peak at τ<sub>p</sub>=5 is artifactual. Therefore, we are able to infer from these results that, as we would expect, predator and prey populations exert bidirectional effects in real-time.</p>
 <p><br /></p>
+</div>
 <div class="section" id="source-data">
 <h4>Source data<a class="headerlink" href="#source-data" title="Permalink to this headline">¶</a></h4>
 <p>For a look at the data behind this analysis,
