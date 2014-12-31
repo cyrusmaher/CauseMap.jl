@@ -15,7 +15,7 @@ para, didi = load_example_data("ParaDidi")
 
 # run analysis
 makeoptimizationplots(para, didi,  E_vals, tau_s_vals, tau_p_vals, "Para.", "Didi.")  # make diagnostic plot
- # tune output by adding args                   # ; nreps=1, left_E=2, left_tau_p=0,  
-                                                        # right_E=7, right_tau_p=12, lagunit=.5, unit="days", 
-                                                        # libsizemin=libsizemin, libsizemax=libsizemax,
-                                                        # npred=npred, pred_start=pred_start)
+                                                                # ; nreps=1, left_E=2, left_tau_p=0,   # tune output by adding args
+                                                                # right_E=7, right_tau_p=12, lagunit=.5, unit="days", 
+                                                                # libsizemin=libsizemin, libsizemax=libsizemax,
+                                                                # npred=npred, pred_start=pred_start)
