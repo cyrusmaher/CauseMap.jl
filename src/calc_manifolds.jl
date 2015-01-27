@@ -38,19 +38,19 @@ function calc_dists(shadowmat::Array{Float64,2})
 end
 
 
-function precalc_manif_dists(Evals::AbstractVector{Int64}, tau_vals::AbstractVector{Int64}, vector::AbstractVector)
-    shadowmats = (Int64=>Dict)[tt => (Int64=>Array{Float64,2})[E => construct_shadow(vector, E, tt) for E in Evals] for tt in tau_vals]
-    distmats   = (Int64=>Dict)[tt => (Int64=>Array{Float64,2})[E => calc_dists(shadowmats[tt][E]) for E in Evals] for tt in tau_vals]
+function precalc_manif_dists(Evals::AbstractVector{Int}, tau_vals::AbstractVector{Int}, vector::AbstractVector)
+    shadowmats = (Int=>Dict)[tt => (Int=>Array{Float64,2})[E => construct_shadow(vector, E, tt) for E in Evals] for tt in tau_vals]
+    distmats   = (Int=>Dict)[tt => (Int=>Array{Float64,2})[E => calc_dists(shadowmats[tt][E]) for E in Evals] for tt in tau_vals]
     return shadowmats, distmats
 end
 
 
-function construct_shadow(vector::AbstractVector, E::Int64, tau_s::Int64=1)
+function construct_shadow(vector::AbstractVector, E::Int, tau_s::Int=1)
     if tau_s < 1
         throw(ArgumentError("tau_s must be greater than 0!"))
     end
-    n::Int64   = length(vector)
-    lag::Int64 = 0
+    n::Int   = length(vector)
+    lag::Int = 0
     shadowmat  = fill(NaN, E, n)
     
     for ii in 1:E

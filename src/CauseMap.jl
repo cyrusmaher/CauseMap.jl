@@ -20,7 +20,7 @@ function load_example_data(dsname)
 end
 
 
-function processpredvals_simple(predvals::Array{Float64,2}, targvals::Vector{Float64}, lib_size::Int64)
+function processpredvals_simple(predvals::Array{Float64,2}, targvals::Vector{Float64}, lib_size::Int)
     nanval = NaN
 
     if all(isnan(predvals))
@@ -58,7 +58,7 @@ function weightfunc(distances::Array{Float64}; kernelargs...)
 end
 
 
-function getdist!(dist_top::Vector{Float64}, inds_touse::AbstractVector{Int64}, num_neighbors::Int) 
+function getdist!(dist_top::Vector{Float64}, inds_touse::AbstractVector{Int}, num_neighbors::Int) 
     if dist_top[1] == 0
         for xx in 1:num_neighbors
             if xx == 1
@@ -78,12 +78,12 @@ function getdist!(dist_top::Vector{Float64}, inds_touse::AbstractVector{Int64}, 
 end
 
 
-function getpredstartstop(nobs::Int, ll::Int, lib_size::Int, npred::Int, pred_start_min::Int64)
-    left::Int64 = iceil(npred / 2)
-    right::Int64 = npred - left - 1
-    midpoint::Int64 = iceil(ll + lib_size / 2)
-    lp::Int64 = midpoint - left
-    rp::Int64 = midpoint + right
+function getpredstartstop(nobs::Int, ll::Int, lib_size::Int, npred::Int, pred_start_min::Int)
+    left::Int = iceil(npred / 2)
+    right::Int = npred - left - 1
+    midpoint::Int = iceil(ll + lib_size / 2)
+    lp::Int = midpoint - left
+    rp::Int = midpoint + right
 
     if lp < pred_start_min
         rp += (pred_start_min - lp)
@@ -104,14 +104,14 @@ end
 
 
 ### this function accounts for ~70% of algorithm run time
-function calcdistslice!(source_dists::Array{Float64, 2}, dist_top::Vector{Float64}, slice_inds::AbstractVector{Int64}, topred::Int64, nn::Range1{Int64})    
+function calcdistslice!(source_dists::Array{Float64, 2}, dist_top::Vector{Float64}, slice_inds::AbstractVector{Int}, topred::Int, nn::Range1{Int})    
     if in(topred, slice_inds)
-        slice_inds = convert(Vector{Int64}, slice_inds)
+        slice_inds = convert(Vector{Int}, slice_inds)
         splice!(slice_inds, findfirst([yy == topred for yy in slice_inds])) # remove topred, but don't move any of the preceding elements in the array
     end
 
     # this line accounts for ~60% of algorithm run time
-    inds_touse::Vector{Int64} = slice_inds[sortperm(source_dists[slice_inds, topred])[nn]] 
+    inds_touse::Vector{Int} = slice_inds[sortperm(source_dists[slice_inds, topred])[nn]] 
     for xx in nn
         dist_top[xx] = source_dists[inds_touse[xx], topred]  # this is not returned because it is written in-place
     end
@@ -120,9 +120,9 @@ end
 
 
 function prepgetpred(source_manifold, lib_start, lib_size, tau_p, npred, num_neighbors; nboots=0)
-    nobs::Int64 = size(source_manifold, 2)
-    lib_stop::Int64 = nobs - lib_size - tau_p
-    nlib::Int64 = lib_stop - lib_start + 1
+    nobs::Int = size(source_manifold, 2)
+    lib_stop::Int = nobs - lib_size - tau_p
+    nlib::Int = lib_stop - lib_start + 1
     if nlib < 1
         println("No libs of this size in dataset. Lib_start is $lib_start, lib_stop is $lib_stop")
         return fill(NaN, 1, 1), fill(NaN, 1,1)
@@ -137,16 +137,16 @@ function prepgetpred(source_manifold, lib_start, lib_size, tau_p, npred, num_nei
         predvals = fill(NaN, npred, nlib)
         targvals = fill(NaN, npred)
     end
-    lib_end::Int64 = lib_start + lib_size - 1
+    lib_end::Int = lib_start + lib_size - 1
     dist_top = fill(NaN, num_neighbors)
     return nobs, lib_stop, nlib, predvals, targvals, min_distances, lib_end, dist_top
 end
 
 
 function getpredvals_boot(source_manifold::Array{Float64,2}, source_dists::Array{Float64,2}, 
-                                             target_series::Vector{Float64}, lib_size::Int64,
-                                             lib_start::Int64, num_neighbors::Int64, 
-                                             tau_p::Int64, npred::Int64, pred_start_min::Int64, nboots::Int64)
+                                             target_series::Vector{Float64}, lib_size::Int,
+                                             lib_start::Int, num_neighbors::Int, 
+                                             tau_p::Int, npred::Int, pred_start_min::Int, nboots::Int)
     # Use bootstrap samples to generate libraries
     
     nobs, lib_stop, nlib, predvals, targvals, min_distances, lib_end, dist_top = prepgetpred(source_manifold,
@@ -161,7 +161,7 @@ function getpredvals_boot(source_manifold::Array{Float64,2}, source_dists::Array
                                                     )  
         targvals[pp] = target_series[topred]
         for xx in 1: nboots  
-            slice_inds::Array{Int64, 1} = [rand(lib_start:lib_stop) for xx in 1:lib_size]
+            slice_inds::Array{Int, 1} = [rand(lib_start:lib_stop) for xx in 1:lib_size]
             
             inds_touse = calcdistslice!(source_dists, dist_top, slice_inds, topred, nn)   
             min_distances[pp, xx] = getdist!(dist_top, inds_touse, num_neighbors)
@@ -176,9 +176,9 @@ end
 
 
 function getpredvals_sw(source_manifold::Array{Float64,2}, source_dists::Array{Float64,2},
-    target_series::Vector{Float64}, lib_size::Int64,
-    lib_start::Int64, num_neighbors::Int64, 
-    tau_p::Int64, npred::Int64, pred_start_min::Int64)
+    target_series::Vector{Float64}, lib_size::Int,
+    lib_start::Int, num_neighbors::Int, 
+    tau_p::Int, npred::Int, pred_start_min::Int)
     # Use a sliding window for your library. This is the traditional form of CCM
 
     nobs, lib_stop, nlib, predvals, targvals, min_distances, lib_end, dist_top = prepgetpred(source_manifold,
@@ -191,7 +191,7 @@ function getpredvals_sw(source_manifold::Array{Float64,2}, source_dists::Array{F
     
     start_count::Int = 1
     for ll in lib_start:lib_stop
-        ll_end::Int64     = ll + lib_size - 1
+        ll_end::Int     = ll + lib_size - 1
         slice_inds = ll:ll_end
         predstart, predstop = getpredstartstop(nobs, ll, lib_size, npred, pred_start_min)
         
@@ -218,11 +218,11 @@ end
 
 function cross_mapping(source_manif_dict::Dict, source_dist_dict::Dict, 
                                         target_series::AbstractVector,
-                                        nobs::Int64,
-                                        libsizemin::Int64, libsizemax::Int64, E::Int64,
-                                        tau_s::Int64, tau_p::Int64, npred::Int64, 
-                                        pred_start_min::Int64, num_neighbors, args...; 
-                                        lib_start::Int64=0, nboots=0)
+                                        nobs::Int,
+                                        libsizemin::Int, libsizemax::Int, E::Int,
+                                        tau_s::Int, tau_p::Int, npred::Int, 
+                                        pred_start_min::Int, num_neighbors, args...; 
+                                        lib_start::Int=0, nboots=0)
                                         
 
     res12 = fill(NaN, libsizemax - libsizemin + 1)
@@ -250,7 +250,7 @@ function cross_mapping(source_manif_dict::Dict, source_dist_dict::Dict,
 end
 
 
-function calclibstart(shadowmat_dict::Dict, E::Int64, tau_s::Int64)
+function calclibstart(shadowmat_dict::Dict, E::Int, tau_s::Int)
 
     nanrows::Array{Bool, 1} = [in(NaN, shadowmat_dict[tau_s][E][:,xx]) for xx in 1:size(shadowmat_dict[tau_s][E], 2)]
     if in(true, nanrows)
@@ -260,7 +260,7 @@ function calclibstart(shadowmat_dict::Dict, E::Int64, tau_s::Int64)
     end
 end
 
-function calclibsizemax(nobs::Int64, E::Int64, tau_s::Int64, tau_p::Int64)  ## REMOVE
+function calclibsizemax(nobs::Int, E::Int, tau_s::Int, tau_p::Int)  ## REMOVE
     return ifloor(nobs/tau_s) - E - tau_p
 end
 
@@ -310,10 +310,10 @@ end
 
 function calcCCM(var1::AbstractVector, var2::AbstractVector,
                                 shadowmat_dict::Dict, distmat_dict::Dict,
-                                E::Int64, tau_s::Int64, tau_p::Int64; 
-                                libsizemin::Int64=0, libsizemax::Int64=0,
-                                npred::Int64=0, pred_start::Int64=0,
-                                lib_start::Int64=0, b_offset::Int64=1, 
+                                E::Int, tau_s::Int, tau_p::Int; 
+                                libsizemin::Int=0, libsizemax::Int=0,
+                                npred::Int=0, pred_start::Int=0,
+                                lib_start::Int=0, b_offset::Int=1, 
                                 quick=false, nlag=10, nboots=0)
 
     nobs = length(var1)
@@ -349,8 +349,8 @@ end
 function optandcalcCCM(vec1::AbstractVector, vec2::AbstractVector, 
                                         E_vals::AbstractVector,  tau_s_vals::AbstractVector, tau_p_vals::AbstractVector; 
                                         nreps=5, b_offset=1, nboots=0, 
-                                        npred::Int64=0, pred_start::Int64=0,
-                                        libsizemin::Int64=0, libsizemax::Int64=0)
+                                        npred::Int=0, pred_start::Int=0,
+                                        libsizemin::Int=0, libsizemax::Int=0)
     """
     vec1: Time series 1
     vec2: Time series 2

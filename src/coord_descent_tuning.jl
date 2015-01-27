@@ -1,9 +1,9 @@
 ########### start optimization functions
 function CoordDescentOpt(source_series::Vector{Float64}, target_series::Vector{Float64}, 
                                             shadowmat_dict::Dict, distmat_dict::Dict,
-                                            E_vals::AbstractVector{Int64}, tau_s_vals::AbstractVector{Int64}, tau_p_vals::AbstractVector{Int64}; 
-                                            libsizemin::Int64=0, libsizemax::Int64=0,
-                                            npred::Int64=0, pred_start::Int64=0,
+                                            E_vals::AbstractVector{Int}, tau_s_vals::AbstractVector{Int}, tau_p_vals::AbstractVector{Int}; 
+                                            libsizemin::Int=0, libsizemax::Int=0,
+                                            npred::Int=0, pred_start::Int=0,
                                             nreps = 5, nboots=0)
     
     bestres=Dict()
@@ -29,14 +29,14 @@ end
     
 function _CoordDescentOpt(source_series::Vector{Float64}, target_series::Vector{Float64}, 
                                                 shadowmat_dict::Dict, distmat_dict::Dict,
-                                                E_vals::AbstractVector{Int64}, tau_s_vals::AbstractVector{Int64}, tau_p_vals::AbstractVector{Int64}; 
-                                                libsizemin::Int64=0, libsizemax::Int64=0,
-                                                npred::Int64=0, pred_start::Int64=0,
+                                                E_vals::AbstractVector{Int}, tau_s_vals::AbstractVector{Int}, tau_p_vals::AbstractVector{Int}; 
+                                                libsizemin::Int=0, libsizemax::Int=0,
+                                                npred::Int=0, pred_start::Int=0,
                                                 nboots=0)
 
-    E_vals = convert(Vector{Int64}, E_vals)
-    tau_s_vals = convert(Vector{Int64}, tau_s_vals)
-    tau_p_vals = convert(Vector{Int64}, tau_p_vals)
+    E_vals = convert(Vector{Int}, E_vals)
+    tau_s_vals = convert(Vector{Int}, tau_s_vals)
+    tau_p_vals = convert(Vector{Int}, tau_p_vals)
 
     toopt = ["E"; "tau_s"; "tau_p"]
 
@@ -80,16 +80,16 @@ end
 
 function optvar(source_series::AbstractVector, target_series::AbstractVector, shadowmat_dict::Dict, 
     distmat_dict::Dict, all_vals::Dict, current_vals::Dict, 
-    best_vals::Dict, var::ASCIIString, libsizemax::Int64, npred::Int64, pred_start::Int64; nlag::Int64=10, b_offset=1, nboots=0)
+    best_vals::Dict, var::ASCIIString, libsizemax::Int, npred::Int, pred_start::Int; nlag::Int=10, b_offset=1, nboots=0)
     
     
     if length(all_vals[var]) < 2
         return true, 0
     end
-    count::Int64= 0
+    count::Int= 0
     looplist     = shuffle(setdiff(all_vals[var], current_vals[var]))
-    val_count::Int64    = 0
-    update_count::Int64 = 0
+    val_count::Int    = 0
+    update_count::Int = 0
     for val in looplist
         current_vals[var] = val # update variable of interest
         libsizemax = min(libsizemax, calclibsizemax(length(source_series), current_vals["E"], current_vals["tau_s"], current_vals["tau_p"]))

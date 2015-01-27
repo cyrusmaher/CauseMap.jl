@@ -1,5 +1,5 @@
 function makesingleplot(vec1::AbstractVector, vec2::AbstractVector, 
-                                        E::Int64, tau_s::Int64, tau_p::Int64,  
+                                        E::Int, tau_s::Int, tau_p::Int,  
                                         var1name::ASCIIString, var2name::ASCIIString; 
                                         lib_start=1, xmin=false, xmax=false, ymin=false, 
                                         ymax=false, nboots=0, plot=true, 
@@ -191,15 +191,15 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
     end
 end
 
-function get_totest(val::Int64, numtotest::Int64, minval::Int64, maxval::Int64)
+function get_totest(val::Int, numtotest::Int, minval::Int, maxval::Int)
     if maxval - minval - 1 < numtotest
         println("Maxval and minval for E_taup curves are inconsistent with number to test")
         println("Fixing maxval")
         maxval = minval + numtotest - 1  
     end
     
-    left::Int64  = val-iceil(numtotest/2) 
-    right::Int64 = val+ifloor(numtotest/2)-1
+    left::Int  = val-iceil(numtotest/2) 
+    right::Int = val+ifloor(numtotest/2)-1
     
     if left < minval
         right += (minval-left)
@@ -223,8 +223,8 @@ end
 
 
 function get_E_taupcurves(source_series::AbstractVector, target_series::AbstractVector, shadowmat_dict::Dict,
-                                            distmat_dict::Dict, libsizemax::Int64, E::Int64, tau_s::Int64, tau_p::Int64, 
-                                            E_vals::AbstractVector, tau_p_vals::AbstractVector, npred::Int64, pred_start::Int64;  
+                                            distmat_dict::Dict, libsizemax::Int, E::Int, tau_s::Int, tau_p::Int, 
+                                            E_vals::AbstractVector, tau_p_vals::AbstractVector, npred::Int, pred_start::Int;  
                                             nlag=10, b_offset=1, num_E=6, Estart=2, num_tau_p=14, tau_p_start=0,
                                             left_E=false, left_tau_p=false, right_E=false, right_tau_p=false, nboots=0)
 
@@ -301,7 +301,7 @@ function format_ticks(xticks)
 
     xticks_int = fill(0, length(xticks))
     try
-        xticks_int = convert(Vector{Int64}, xticks)  # If values are too far from ints, this raises an InexactError
+        xticks_int = convert(Vector{Int}, xticks)  # If values are too far from ints, this raises an InexactError
     catch
         return xticks
     end
