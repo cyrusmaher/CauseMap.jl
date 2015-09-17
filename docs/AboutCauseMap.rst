@@ -60,7 +60,7 @@ of individual variables each contain information about their full causal system.
 The second animation explains a corollary to this observation: shadows of full
 causal systems can be constructed using individual time series. For further details,
 please feel free to consult the original reference (below), or our description in
-the latest version of our `manuscript <https://github.com/cyrusmaher/CauseMap.jl/blob/master/manuscripts/CauseMap_latest.docx?raw=true>`_.
+the `CauseMap manuscript <https://peerj.com/articles/824/>`_.
 
 |
 
