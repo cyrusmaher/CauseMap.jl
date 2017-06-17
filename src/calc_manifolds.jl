@@ -39,8 +39,8 @@ end
 
 
 function precalc_manif_dists(Evals::AbstractVector{Int}, tau_vals::AbstractVector{Int}, vector::AbstractVector)
-    shadowmats = (Int=>Dict)[tt => (Int=>Array{Float64,2})[E => construct_shadow(vector, E, tt) for E in Evals] for tt in tau_vals]
-    distmats   = (Int=>Dict)[tt => (Int=>Array{Float64,2})[E => calc_dists(shadowmats[tt][E]) for E in Evals] for tt in tau_vals]
+    shadowmats = Dict{Int,Dict}(tt => Dict{Int,Array{Float64,2}}(E => construct_shadow(vector, E, tt) for E in Evals) for tt in tau_vals)
+    distmats   = Dict{Int,Dict}(tt => Dict{Int,Array{Float64,2}}(E => calc_dists(shadowmats[tt][E]) for E in Evals) for tt in tau_vals)
     return shadowmats, distmats
 end
 

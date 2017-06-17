@@ -1,6 +1,7 @@
 module CauseMap
 using Base.LinAlg.BLAS 
 using PyCall
+using PyPlot
 
 include("plotting.jl")
 include("coord_descent_tuning.jl")
@@ -79,9 +80,9 @@ end
 
 
 function getpredstartstop(nobs::Int, ll::Int, lib_size::Int, npred::Int, pred_start_min::Int)
-    left::Int = iceil(npred / 2)
+    left::Int = ceil(Integer, npred / 2)
     right::Int = npred - left - 1
-    midpoint::Int = iceil(ll + lib_size / 2)
+    midpoint::Int = ceil(Integer, ll + lib_size / 2)
     lp::Int = midpoint - left
     rp::Int = midpoint + right
 
@@ -104,7 +105,7 @@ end
 
 
 ### this function accounts for ~70% of algorithm run time
-function calcdistslice!(source_dists::Array{Float64, 2}, dist_top::Vector{Float64}, slice_inds::AbstractVector{Int}, topred::Int, nn::Range1{Int})    
+function calcdistslice!(source_dists::Array{Float64, 2}, dist_top::Vector{Float64}, slice_inds::AbstractVector{Int}, topred::Int, nn::Range{Int})    
     if in(topred, slice_inds)
         slice_inds = convert(Vector{Int}, slice_inds)
         splice!(slice_inds, findfirst([yy == topred for yy in slice_inds])) # remove topred, but don't move any of the preceding elements in the array
@@ -261,7 +262,7 @@ function calclibstart(shadowmat_dict::Dict, E::Int, tau_s::Int)
 end
 
 function calclibsizemax(nobs::Int, E::Int, tau_s::Int, tau_p::Int)  ## REMOVE
-    return ifloor(nobs/tau_s) - E - tau_p
+    return floor(Integer, nobs/tau_s) - E - tau_p
 end
 
 function check_lib_pred_defaults(libsizemin, libsizemax, lib_start, 
