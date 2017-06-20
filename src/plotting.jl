@@ -1,6 +1,6 @@
 function makesingleplot(vec1::AbstractVector, vec2::AbstractVector, 
                                         E::Int, tau_s::Int, tau_p::Int,  
-                                        var1name::ASCIIString, var2name::ASCIIString; 
+                                        var1name::String, var2name::String; 
                                         lib_start=1, xmin=false, xmax=false, ymin=false, 
                                         ymax=false, nboots=0, plot=true, 
                                         libsizemin=0, libsizemax=0, 
@@ -61,7 +61,7 @@ end
 
 function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_vals::AbstractVector,  
                                                     tau_s_vals::AbstractVector, tau_p_vals::AbstractVector,
-                                                    var1name::ASCIIString, var2name::ASCIIString; 
+                                                    var1name::String, var2name::String; 
                                                     nreps=5, b_offset=1, ncols=28, left_E=false, left_tau_p=false, 
                                                     right_E=false, right_tau_p=false, lagunit=1, unit=false, 
                                                     imfont="medium", nboots=0, legend=true, 
@@ -87,20 +87,20 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
                                                 npred=npred, pred_start=pred_start, 
                                                 nreps=nreps, nboots=nboots)
     
-    libsizemin_12 = max(res12["E"] + b_offset + 1, 10)
-    libsizemin_21 = max(res21["E"] + b_offset + 1, 10)
+    libsizemin_12 = max(convert(Integer, res12["E"]) + b_offset + 1, 10)
+    libsizemin_21 = max(convert(Integer, res21["E"]) + b_offset + 1, 10)
     
     println("\nstarting calcCCM1")
     librange12, yval_12 = calcCCM(vec1, vec2, 
                                                         shadowmat_dict_vec1, distmat_dict_vec1, 
-                                                        res12["E"], res12["tau_s"], res12["tau_p"];
+                                                        convert(Integer, res12["E"]), convert(Integer, res12["tau_s"]), convert(Integer, res12["tau_p"]);
                                                         libsizemin=libsizemin_12, libsizemax=libsizemax,
                                                         npred=npred, pred_start=pred_start, 
                                                         lib_start=1, nboots=nboots)
     println("starting calcCCM2")
     librange21, yval_21 = calcCCM(vec2, vec1, 
                                                         shadowmat_dict_vec2, distmat_dict_vec2, 
-                                                        res12["E"], res12["tau_s"], res12["tau_p"];
+                                                        convert(Integer, res12["E"]), convert(Integer, res12["tau_s"]), convert(Integer, res12["tau_p"]);
                                                         libsizemin=libsizemin_21, libsizemax=libsizemax,
                                                         npred=npred, pred_start=pred_start, 
                                                         lib_start=1, nboots=nboots)
@@ -120,10 +120,10 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
         statsuff1 = ""
         statsuff2 = ""
     end
-    stats1 = "   E = $(res12["E"]), \$\\tau_{p}\$ = $(int(res12["tau_p"] * lagunit))" * statsuff1
-    stats2 = "   E = $(res21["E"]), \$\\tau_{p}\$ = $(int(res21["tau_p"] * lagunit))" * statsuff2
+    stats1 = "   E = $(res12["E"]), \$\\tau_{p}\$ = $(round(Int, res12["tau_p"] * lagunit))" * statsuff1
+    stats2 = "   E = $(res21["E"]), \$\\tau_{p}\$ = $(round(Int, res21["tau_p"] * lagunit))" * statsuff2
 
-    ax1 = plt.subplot2grid((2,ncols), (0,0), rowspan=2, colspan=ifloor(ncols/3))
+    ax1 = plt.subplot2grid((2,ncols), (0,0), rowspan=2, colspan=floor(Integer, ncols/3))
     
     ax1[:plot](librange12, yval_12, label="$label1\n$stats1")
     ax1[:plot](librange21, yval_21, label="$label2\n$stats2")
@@ -140,7 +140,7 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
     
     mat12, Es12, taus12 = get_E_taupcurves(vec1, vec2, 
                                                                         shadowmat_dict_vec1, distmat_dict_vec1, 
-                                                                        libsizemax, res12["E"], res12["tau_s"], res12["tau_p"], 
+                                                                        libsizemax, convert(Integer, res12["E"]), convert(Integer, res12["tau_s"]), convert(Integer, res12["tau_p"]), 
                                                                         E_vals, tau_p_vals, npred, pred_start; 
                                                                         left_E=left_E, left_tau_p=left_tau_p, 
                                                                         right_E=right_E, right_tau_p=right_tau_p, nboots=nboots
@@ -148,7 +148,7 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
     
     mat21, Es21, taus21 = get_E_taupcurves(vec2, vec1, 
                                                                         shadowmat_dict_vec2, distmat_dict_vec2,
-                                                                        libsizemax, res21["E"], res21["tau_s"], res21["tau_p"], 
+                                                                        libsizemax, convert(Integer, res21["E"]), convert(Integer, res21["tau_s"]), convert(Integer, res21["tau_p"]), 
                                                                         E_vals, tau_p_vals, npred, pred_start;
                                                                         left_E=left_E, left_tau_p=left_tau_p, 
                                                                         right_E=right_E, right_tau_p=right_tau_p, nboots=nboots
@@ -171,10 +171,10 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
         xlabel =  "\$\\tau_p\$"
     end
 
-    ax2 = plt.subplot2grid((2,ncols), (0,ifloor(ncols/3)), colspan=2*ifloor(ncols/3))
+    ax2 = plt.subplot2grid((2,ncols), (0,floor(Integer, ncols/3)), colspan=2*floor(Integer, ncols/3))
     imax12 = plotheatmap(ax2, mat12, vmin, vmax, label1, taus12, Es12, imfont, lagunit, xlabel)
 
-    ax3 = plt.subplot2grid((2,ncols), (1,ifloor(ncols/3)), colspan=2*ifloor(ncols/3))
+    ax3 = plt.subplot2grid((2,ncols), (1,floor(Integer, ncols/3)), colspan=2*floor(Integer, ncols/3))
     imax21 = plotheatmap(ax3, mat21, vmin, vmax, label2, taus21, Es21, imfont, lagunit, xlabel)
 
     ax4 = plt.subplot2grid((2,ncols), (0,ncols-1), rowspan=2)  # axis for colorbar
@@ -198,8 +198,8 @@ function get_totest(val::Int, numtotest::Int, minval::Int, maxval::Int)
         maxval = minval + numtotest - 1  
     end
     
-    left::Int  = val-iceil(numtotest/2) 
-    right::Int = val+ifloor(numtotest/2)-1
+    left::Int  = val-ceil(Integer, numtotest/2) 
+    right::Int = val+floor(Integer, numtotest/2)-1
     
     if left < minval
         right += (minval-left)

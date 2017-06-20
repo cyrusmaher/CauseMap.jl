@@ -40,7 +40,7 @@ function _CoordDescentOpt(source_series::Vector{Float64}, target_series::Vector{
 
     toopt = ["E"; "tau_s"; "tau_p"]
 
-    current_vals = {"E"=>E_vals[1], "tau_s"=> tau_s_vals[1], "tau_p"=>tau_p_vals[1]}
+    current_vals = Dict("E"=>E_vals[1], "tau_s"=> tau_s_vals[1], "tau_p"=>tau_p_vals[1])
     librange, res12 = calcCCM(source_series, target_series, 
                                                 shadowmat_dict, distmat_dict,  
                                                 current_vals["E"], current_vals["tau_s"], current_vals["tau_p"]; 
@@ -49,9 +49,9 @@ function _CoordDescentOpt(source_series::Vector{Float64}, target_series::Vector{
                                                 quick=true, nboots=nboots)
     
     rhoinit = getrho(res12)
-    best_vals = merge(current_vals, ["rho"=>rhoinit])
+    best_vals = merge(current_vals, Dict("rho"=>rhoinit))
     
-    all_vals = ["E"=>E_vals, "tau_s"=>tau_s_vals, "tau_p"=>tau_p_vals]
+    all_vals = Dict("E"=>E_vals, "tau_s"=>tau_s_vals, "tau_p"=>tau_p_vals)
 
     iternum = 1
     count = 0
@@ -80,7 +80,7 @@ end
 
 function optvar(source_series::AbstractVector, target_series::AbstractVector, shadowmat_dict::Dict, 
     distmat_dict::Dict, all_vals::Dict, current_vals::Dict, 
-    best_vals::Dict, var::ASCIIString, libsizemax::Int, npred::Int, pred_start::Int; nlag::Int=10, b_offset=1, nboots=0)
+    best_vals::Dict, var::String, libsizemax::Int, npred::Int, pred_start::Int; nlag::Int=10, b_offset=1, nboots=0)
     
     
     if length(all_vals[var]) < 2
