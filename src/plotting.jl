@@ -120,8 +120,8 @@ function makeoptimizationplots(vec1::AbstractVector, vec2::AbstractVector, E_val
         statsuff1 = ""
         statsuff2 = ""
     end
-    stats1 = "   E = $(res12["E"]), \$\\tau_{p}\$ = $(Int(res12["tau_p"] * lagunit))" * statsuff1
-    stats2 = "   E = $(res21["E"]), \$\\tau_{p}\$ = $(Int(res21["tau_p"] * lagunit))" * statsuff2
+    stats1 = "   E = $(res12["E"]), \$\\tau_{p}\$ = $(round(Int, res12["tau_p"] * lagunit))" * statsuff1
+    stats2 = "   E = $(res21["E"]), \$\\tau_{p}\$ = $(round(Int, res21["tau_p"] * lagunit))" * statsuff2
 
     ax1 = plt.subplot2grid((2,ncols), (0,0), rowspan=2, colspan=floor(Integer, ncols/3))
     
